@@ -15,6 +15,8 @@ use Coinbase\Wallet\Resource\Checkout;
 use Coinbase\Wallet\Resource\CurrentUser;
 use Coinbase\Wallet\Resource\Deposit;
 use Coinbase\Wallet\Resource\Email;
+use Coinbase\Wallet\Resource\EosAddress;
+use Coinbase\Wallet\Resource\EosNetwork;
 use Coinbase\Wallet\Resource\EthereumNetwork;
 use Coinbase\Wallet\Resource\EthrereumAddress;
 use Coinbase\Wallet\Resource\LitecoinAddress;
@@ -123,9 +125,9 @@ class Mapper
     {
         // validate
         $to = $transaction->getTo();
-        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress  && !$to instanceof Account) {
+        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof EosAddress && !$to instanceof Account) {
             throw new LogicException(
-                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, or ethereum address'
+                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, or eos address'
             );
         }
 
@@ -738,6 +740,15 @@ class Mapper
             ];
         }
 
+        if($value instanceof EosAddress){
+            // eos address
+            return [
+                'resource' => ResourceType::EOS_ADDRESS,
+                'address' => $value->getAddress(),
+                'memo' => $value->getMemo(),
+            ];
+        }
+
         if ($value instanceof Resource) {
             // resource
             return [
@@ -831,11 +842,15 @@ class Mapper
                 return new LitecoinNetwork();
             case ResourceType::ETHEREUM_NETWORK:
                 return new EthereumNetwork();
+            case ResourceType::EOS_NETWORK:
+                return new EosNetwork();
             case ResourceType::LITECOIN_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::ETHEREUM_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::BITCOIN_CASH_ADDRESS:
+                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
+            case ResourceType::EOS_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             default:
                 throw new RuntimeException('Unrecognized resource type: '.$type);
