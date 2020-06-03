@@ -32,6 +32,8 @@ class ResourceType
     const BITCOIN_CASH_ADDRESS = 'bitcoin_cash_address';
     const EOS_ADDRESS = 'eos_address';
     const EOS_NETWORK = 'eos_network';
+    const XRP_ADDRESS = 'xrp_address';
+    const XRP_NETWORK = 'xrp_network';
 
     private function __construct()
     {
