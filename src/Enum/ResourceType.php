@@ -34,6 +34,8 @@ class ResourceType
     const EOS_NETWORK = 'eos_network';
     const XRP_ADDRESS = 'xrp_address';
     const XRP_NETWORK = 'xrp_network';
+    const ZRX_ADDRESS = '0x_address';
+    const ZRX_NETWORK = '0x_network';
 
     private function __construct()
     {

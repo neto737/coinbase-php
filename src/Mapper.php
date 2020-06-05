@@ -33,6 +33,8 @@ use Coinbase\Wallet\Resource\Withdrawal;
 use Coinbase\Wallet\Resource\Notification;
 use Coinbase\Wallet\Resource\BitcoinNetwork;
 use Coinbase\Wallet\Resource\BitcoinCashNetwork;
+use Coinbase\Wallet\Resource\XrpNetwork;
+use Coinbase\Wallet\Resource\ZrxNetwork;
 use Coinbase\Wallet\Value\Fee;
 use Coinbase\Wallet\Value\Money;
 use Coinbase\Wallet\Value\Network;
@@ -844,6 +846,10 @@ class Mapper
                 return new EthereumNetwork();
             case ResourceType::EOS_NETWORK:
                 return new EosNetwork();
+            case ResourceType::XRP_NETWORK:
+                return new XrpNetwork();
+            case ResourceType::ZRX_NETWORK:
+                return new ZrxNetwork();
             case ResourceType::LITECOIN_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::ETHEREUM_ADDRESS:
@@ -851,6 +857,10 @@ class Mapper
             case ResourceType::BITCOIN_CASH_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::EOS_ADDRESS:
+                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
+            case ResourceType::XRP_ADDRESS:
+                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
+            case ResourceType::ZRX_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             default:
                 throw new RuntimeException('Unrecognized resource type: '.$type);
