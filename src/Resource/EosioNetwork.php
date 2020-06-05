@@ -4,10 +4,10 @@ namespace Coinbase\Wallet\Resource;
 
 use Coinbase\Wallet\Enum\ResourceType;
 
-class EosNetwork extends Resource
+class EosioNetwork extends Resource
 {
     public function __construct()
     {
-        parent::__construct(ResourceType::EOS_NETWORK);
+        parent::__construct(ResourceType::EOSIO_NETWORK);
     }
 }

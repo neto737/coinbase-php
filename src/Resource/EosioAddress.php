@@ -3,27 +3,19 @@
 namespace Coinbase\Wallet\Resource;
 use Coinbase\Wallet\Enum\ResourceType;
 
-class EosAddress extends Resource
+class EosioAddress extends Resource
 {
     private $address;
 
-    private $memo;
-
     public function __construct($address, $memo)
     {
-        parent::__construct(ResourceType::EOS_ADDRESS);
+        parent::__construct(ResourceType::EOSIO_ADDRESS);
 
-        $this->address = $address;
-        $this->memo = $memo;
+	    $this->address = $address . ':::ucl:::' . $memo;
     }
 
     public function getAddress()
     {
         return $this->address;
-    }
-
-    public function getMemo()
-    {
-    	return $this->memo;
     }
 }

@@ -10,36 +10,37 @@ use Coinbase\Wallet\Resource\Address;
 use Coinbase\Wallet\Resource\Application;
 use Coinbase\Wallet\Resource\BitcoinAddress;
 use Coinbase\Wallet\Resource\BitcoinCashAddress;
+use Coinbase\Wallet\Resource\BitcoinCashNetwork;
+use Coinbase\Wallet\Resource\BitcoinNetwork;
 use Coinbase\Wallet\Resource\Buy;
 use Coinbase\Wallet\Resource\Checkout;
 use Coinbase\Wallet\Resource\CurrentUser;
 use Coinbase\Wallet\Resource\Deposit;
 use Coinbase\Wallet\Resource\Email;
-use Coinbase\Wallet\Resource\EosAddress;
-use Coinbase\Wallet\Resource\EosNetwork;
+use Coinbase\Wallet\Resource\EosioAddress;
+use Coinbase\Wallet\Resource\EosioNetwork;
 use Coinbase\Wallet\Resource\EthereumNetwork;
 use Coinbase\Wallet\Resource\EthrereumAddress;
 use Coinbase\Wallet\Resource\LitecoinAddress;
 use Coinbase\Wallet\Resource\LitecoinNetwork;
 use Coinbase\Wallet\Resource\Merchant;
+use Coinbase\Wallet\Resource\Notification;
 use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Resource\PaymentMethod;
 use Coinbase\Wallet\Resource\Resource;
 use Coinbase\Wallet\Resource\ResourceCollection;
+use Coinbase\Wallet\Resource\RippleNetwork;
 use Coinbase\Wallet\Resource\Sell;
 use Coinbase\Wallet\Resource\Transaction;
 use Coinbase\Wallet\Resource\User;
 use Coinbase\Wallet\Resource\Withdrawal;
-use Coinbase\Wallet\Resource\Notification;
-use Coinbase\Wallet\Resource\BitcoinNetwork;
-use Coinbase\Wallet\Resource\BitcoinCashNetwork;
-use Coinbase\Wallet\Resource\XrpNetwork;
+use Coinbase\Wallet\Resource\RippleAddress;
+use Coinbase\Wallet\Resource\ZrxAddress;
 use Coinbase\Wallet\Resource\ZrxNetwork;
 use Coinbase\Wallet\Value\Fee;
 use Coinbase\Wallet\Value\Money;
 use Coinbase\Wallet\Value\Network;
 use Psr\Http\Message\ResponseInterface;
-
 
 class Mapper
 {
@@ -127,9 +128,9 @@ class Mapper
     {
         // validate
         $to = $transaction->getTo();
-        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof EosAddress && !$to instanceof Account) {
+        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof ZrxAddress && !$to instanceof EosioAddress && !$to instanceof RippleAddress && !$to instanceof Account) {
             throw new LogicException(
-                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, or eos address'
+                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, zrx address, xrp address or eos address'
             );
         }
 
@@ -742,12 +743,27 @@ class Mapper
             ];
         }
 
-        if($value instanceof EosAddress){
+        if($value instanceof EosioAddress){
             // eos address
             return [
-                'resource' => ResourceType::EOS_ADDRESS,
+                'resource' => ResourceType::EOSIO_ADDRESS,
                 'address' => $value->getAddress(),
-                'memo' => $value->getMemo(),
+            ];
+        }
+
+        if($value instanceof RippleAddress){
+            // eos address
+            return [
+                'resource' => ResourceType::EOSIO_ADDRESS,
+                'address' => $value->getAddress(),
+            ];
+        }
+
+        if($value instanceof ZrxAddress){
+            // eos address
+            return [
+                'resource' => ResourceType::ZRX_ADDRESS,
+                'address' => $value->getAddress(),
             ];
         }
 
@@ -844,10 +860,10 @@ class Mapper
                 return new LitecoinNetwork();
             case ResourceType::ETHEREUM_NETWORK:
                 return new EthereumNetwork();
-            case ResourceType::EOS_NETWORK:
-                return new EosNetwork();
-            case ResourceType::XRP_NETWORK:
-                return new XrpNetwork();
+            case ResourceType::EOSIO_NETWORK:
+                return new EosioNetwork();
+            case ResourceType::RIPPLE_NETWORK:
+                return new RippleNetwork();
             case ResourceType::ZRX_NETWORK:
                 return new ZrxNetwork();
             case ResourceType::LITECOIN_ADDRESS:
@@ -856,9 +872,9 @@ class Mapper
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::BITCOIN_CASH_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::EOS_ADDRESS:
+            case ResourceType::EOSIO_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::XRP_ADDRESS:
+            case ResourceType::RIPPLE_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::ZRX_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
