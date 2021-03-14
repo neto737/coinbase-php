@@ -37,6 +37,11 @@ use Coinbase\Wallet\Resource\Withdrawal;
 use Coinbase\Wallet\Resource\RippleAddress;
 use Coinbase\Wallet\Resource\ZrxAddress;
 use Coinbase\Wallet\Resource\ZrxNetwork;
+use Coinbase\Wallet\Resource\Notification;
+use Coinbase\Wallet\Resource\BitcoinNetwork;
+use Coinbase\Wallet\Resource\BitcoinCashNetwork;
+use Coinbase\Wallet\Resource\USDCoinAddress;
+use Coinbase\Wallet\Resource\USDCoinNetwork;
 use Coinbase\Wallet\Value\Fee;
 use Coinbase\Wallet\Value\Money;
 use Coinbase\Wallet\Value\Network;
@@ -128,9 +133,9 @@ class Mapper
     {
         // validate
         $to = $transaction->getTo();
-        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof ZrxAddress && !$to instanceof EosioAddress && !$to instanceof RippleAddress && !$to instanceof Account) {
+        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof USDCoinAddress && !$to instanceof ZrxAddress && !$to instanceof RippleAddress && !$to instanceof EosioAddress && !$to instanceof Account) {
             throw new LogicException(
-                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, zrx address, xrp address or eos address'
+                'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, usd coin address, zrx address, xrp address or eos address'
             );
         }
 
@@ -742,7 +747,6 @@ class Mapper
                 'address' => $value->getAddress(),
             ];
         }
-
         if($value instanceof EosioAddress){
             // eos address
             return [
@@ -752,7 +756,7 @@ class Mapper
         }
 
         if($value instanceof RippleAddress){
-            // eos address
+            // xrp address
             return [
                 'resource' => ResourceType::EOSIO_ADDRESS,
                 'address' => $value->getAddress(),
@@ -760,9 +764,17 @@ class Mapper
         }
 
         if($value instanceof ZrxAddress){
-            // eos address
+            // zrx address
             return [
                 'resource' => ResourceType::ZRX_ADDRESS,
+                'address' => $value->getAddress(),
+            ];
+        }
+
+        if($value instanceof USDCoinAddress){
+            // usd coin address
+            return [
+                'resource' => ResourceType::USD_COIN_ADDRESS,
                 'address' => $value->getAddress(),
             ];
         }
@@ -866,9 +878,13 @@ class Mapper
                 return new RippleNetwork();
             case ResourceType::ZRX_NETWORK:
                 return new ZrxNetwork();
+            case ResourceType::USD_COIN_NETWORK:
+                return new USDCoinNetwork();
             case ResourceType::LITECOIN_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::ETHEREUM_ADDRESS:
+                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
+            case ResourceType::USD_COIN_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             case ResourceType::BITCOIN_CASH_ADDRESS:
                 return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
