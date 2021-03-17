@@ -11,18 +11,24 @@ interface Authentication
      * Returns authentication headers for the given request.
      *
      * @param string $method The request method
-     * @param string $path   The request resource path
-     * @param string $body   The request body
+     * @param string $path The request resource path
+     * @param string $body The request body
      *
      * @return array A hash of request headers for authentication
      */
-    public function getRequestHeaders($method, $path, $body);
+    public function getRequestHeaders(string $method, string $path, string $body): array;
 
-    /** @return RequestInterface|null */
-    public function createRefreshRequest($baseUrl);
+    /**
+     * @param $baseUrl
+     * @return RequestInterface|null
+     */
+    public function createRefreshRequest($baseUrl): ?RequestInterface;
     public function handleRefreshResponse(RequestInterface $request, ResponseInterface $response);
 
-    /** @return RequestInterface|null */
-    public function createRevokeRequest($baseUrl);
+    /**
+     * @param $baseUrl
+     * @return RequestInterface|null
+     */
+    public function createRevokeRequest($baseUrl): ?RequestInterface;
     public function handleRevokeResponse(RequestInterface $request, ResponseInterface $response);
 }

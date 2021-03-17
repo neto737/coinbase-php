@@ -16,6 +16,7 @@ trait AccountActiveRecord
 
     /**
      * Issues a refresh request to the API.
+     * @param array $params
      */
     public function refresh(array $params = [])
     {
@@ -24,6 +25,7 @@ trait AccountActiveRecord
 
     /**
      * Issues an refresh request to the API.
+     * @param array $params
      */
     public function update(array $params = [])
     {
@@ -32,6 +34,7 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to make the current account primary.
+     * @param array $params
      */
     public function makePrimary(array $params = [])
     {
@@ -40,6 +43,7 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to delete the current account.
+     * @param array $params
      */
     public function delete(array $params = [])
     {
@@ -51,6 +55,7 @@ trait AccountActiveRecord
     /**
      * Fetches account addresses from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Address[] The addresses
      */
     public function getAddresses(array $params = [])
@@ -61,15 +66,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account address from the API.
      *
+     * @param string $addressId
+     * @param array $params
      * @return Address The address
      */
-    public function getAddress($addressId, array $params = [])
+    public function getAddress(string $addressId, array $params = []): Address
     {
         return $this->getClient()->getAccountAddress($this, $addressId, $params);
     }
 
     /**
      * Issues an API request to create a new account address.
+     * @param Address $address
+     * @param array $params
      */
     public function createAddress(Address $address, array $params = [])
     {
@@ -81,6 +90,7 @@ trait AccountActiveRecord
     /**
      * Fetches account transactions from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Transaction[] The transactions
      */
     public function getTransactions(array $params = [])
@@ -91,15 +101,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account transaction from the API.
      *
+     * @param string $transactionId
+     * @param array $params
      * @return Transaction The transaction
      */
-    public function getTransaction($transactionId, array $params = [])
+    public function getTransaction(string $transactionId, array $params = []): Transaction
     {
         return $this->getClient()->getAccountTransaction($this, $transactionId, $params);
     }
 
     /**
      * Issues an API request to create a new account transaction.
+     * @param Transaction $transaction
+     * @param array $params
      */
     public function createTransaction(Transaction $transaction, array $params = [])
     {
@@ -111,6 +125,7 @@ trait AccountActiveRecord
     /**
      * Fetches account buys from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Buy[] The buys
      */
     public function getBuys(array $params = [])
@@ -121,15 +136,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account buy from the API.
      *
+     * @param string $buyId
+     * @param array $params
      * @return Buy The buy
      */
-    public function getBuy($buyId, array $params = [])
+    public function getBuy(string $buyId, array $params = []): Buy
     {
         return $this->getClient()->getAccountBuy($this, $buyId, $params);
     }
 
     /**
      * Issues an API request to create a new account buy.
+     * @param Buy $buy
+     * @param array $params
      */
     public function createBuy(Buy $buy, array $params = [])
     {
@@ -138,6 +157,8 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to commit an account buy.
+     * @param Buy $buy
+     * @param array $params
      */
     public function commitBuy(Buy $buy, array $params = [])
     {
@@ -149,6 +170,7 @@ trait AccountActiveRecord
     /**
      * Fetches account sells from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Sell[] The sells
      */
     public function getAccountSells(array $params = [])
@@ -159,15 +181,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account sell from the API.
      *
+     * @param string $sellId
+     * @param array $params
      * @return Sell The sell
      */
-    public function getSell($sellId, array $params = [])
+    public function getSell(string $sellId, array $params = []): Sell
     {
         return $this->getClient()->getAccountSell($this, $sellId, $params);
     }
 
     /**
      * Issues an API request to create a new account sell.
+     * @param Sell $sell
+     * @param array $params
      */
     public function createSell(Sell $sell, array $params = [])
     {
@@ -176,6 +202,8 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to commit an account sell.
+     * @param Sell $sell
+     * @param array $params
      */
     public function commitSell(Sell $sell, array $params = [])
     {
@@ -187,6 +215,7 @@ trait AccountActiveRecord
     /**
      * Fetches account deposits from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Deposit[] The deposits
      */
     public function getDeposits(array $params = [])
@@ -197,15 +226,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account deposit from the API.
      *
+     * @param string $depositId
+     * @param array $params
      * @return Deposit The deposit
      */
-    public function getDeposit($depositId, array $params = [])
+    public function getDeposit(string $depositId, array $params = []): Deposit
     {
         return $this->getClient()->getAccountDeposit($this, $depositId, $params);
     }
 
     /**
      * Issues an API request to create a new account deposit.
+     * @param Deposit $deposit
+     * @param array $params
      */
     public function createDeposit(Deposit $deposit, array $params = [])
     {
@@ -214,6 +247,8 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to commit an account deposit.
+     * @param Deposit $deposit
+     * @param array $params
      */
     public function commitDeposit(Deposit $deposit, array $params = [])
     {
@@ -225,6 +260,7 @@ trait AccountActiveRecord
     /**
      * Fetches account withdrawals from the API.
      *
+     * @param array $params
      * @return ResourceCollection|Withdrawal[] The withdrawals
      */
     public function getWithdrawals(array $params = [])
@@ -235,15 +271,19 @@ trait AccountActiveRecord
     /**
      * Fetches a specific account withdrawal from the API.
      *
+     * @param string $withdrawalId
+     * @param array $params
      * @return Withdrawal The withdrawal
      */
-    public function getWithdrawal($withdrawalId, array $params = [])
+    public function getWithdrawal(string $withdrawalId, array $params = []): Withdrawal
     {
         return $this->getClient()->getAccountWithdrawal($this, $withdrawalId, $params);
     }
 
     /**
      * Issues an API request to create a new account withdrawal.
+     * @param Withdrawal $withdrawal
+     * @param array $params
      */
     public function createWithdrawal(Withdrawal $withdrawal, array $params = [])
     {
@@ -252,6 +292,8 @@ trait AccountActiveRecord
 
     /**
      * Issues an API request to commit an account withdrawal.
+     * @param Withdrawal $withdrawal
+     * @param array $params
      */
     public function commitWithdrawal(Withdrawal $withdrawal, array $params = [])
     {

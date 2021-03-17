@@ -36,7 +36,7 @@ class ApiKeyAuthentication implements Authentication
         $this->apiSecret = $apiSecret;
     }
 
-    public function getRequestHeaders($method, $path, $body)
+    public function getRequestHeaders(string $method, string $path, string $body): array
     {
         $timestamp = $this->getTimestamp();
         $signature = $this->getHash('sha256', $timestamp.$method.$path.$body, $this->apiSecret);
@@ -48,7 +48,7 @@ class ApiKeyAuthentication implements Authentication
         ];
     }
 
-    public function createRefreshRequest($baseUrl)
+    public function createRefreshRequest($baseUrl): ?RequestInterface
     {
     }
 
@@ -56,7 +56,7 @@ class ApiKeyAuthentication implements Authentication
     {
     }
 
-    public function createRevokeRequest($baseUrl)
+    public function createRevokeRequest($baseUrl): ?RequestInterface
     {
     }
 
@@ -66,12 +66,12 @@ class ApiKeyAuthentication implements Authentication
 
     // protected
 
-    protected function getTimestamp()
+    protected function getTimestamp(): int
     {
-        return time();
+        return now()->getTimestamp();
     }
 
-    protected function getHash($algo, $data, $key)
+    protected function getHash($algo, $data, $key): string
     {
         return hash_hmac($algo, $data, $key);
     }

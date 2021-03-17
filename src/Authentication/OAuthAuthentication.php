@@ -38,14 +38,14 @@ class OAuthAuthentication implements Authentication
         $this->refreshToken = $refreshToken;
     }
 
-    public function getRequestHeaders($method, $path, $body)
+    public function getRequestHeaders(string $method, string $path, string $body): array
     {
         return [
             'Authorization' => 'Bearer '.$this->accessToken,
         ];
     }
 
-    public function createRefreshRequest($baseUrl)
+    public function createRefreshRequest($baseUrl): ?RequestInterface
     {
         if (!$this->refreshToken) {
             throw new LogicException('There is no refresh token');
@@ -67,7 +67,7 @@ class OAuthAuthentication implements Authentication
         $this->refreshToken = $data['refresh_token'];
     }
 
-    public function createRevokeRequest($baseUrl)
+    public function createRevokeRequest($baseUrl): ?RequestInterface
     {
         return new Request('POST', $baseUrl.'/oauth/revoke', [
             'Content-Type' => 'application/json',
