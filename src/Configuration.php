@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 class Configuration
 {
     const DEFAULT_API_URL = 'https://api.coinbase.com';
-    const DEFAULT_API_VERSION = '2016-02-01';
+    const DEFAULT_API_VERSION = '2018-05-21';
 
     private $authentication;
     private $apiUrl;
