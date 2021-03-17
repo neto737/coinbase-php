@@ -178,7 +178,25 @@ class CurrencyCode
     const ZMW = 'ZMW';
     const ZWL = 'ZWL';
 
+    private static $pairSeparator = '-';
+
     private function __construct()
     {
+    }
+
+    /**
+     * @param CurrencyCode|string|null $fromCode
+     * @param CurrencyCode|string|null $toCode
+     * @return mixed
+     */
+    public static function pair($fromCode = CurrencyCode::BTC, $toCode = CurrencyCode::USD) {
+        if (empty($fromCode)) {
+            $fromCode = CurrencyCode::BTC;
+        }
+        if (empty($toCode)) {
+            $toCode = CurrencyCode::USD;
+        }
+        return sprintf('%s%s%s',
+            strtoupper($fromCode), static::$pairSeparator, strtoupper($toCode));
     }
 }
