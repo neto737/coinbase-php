@@ -34,8 +34,8 @@ abstract class Transfer extends Resource
     /** @var Boolean */
     private $committed;
 
-    /** @var Fee[] */
-    private $fees;
+    /** @var Fee */
+    private $fee;
 
     /** @var \DateTime */
     private $payoutAt;
@@ -100,9 +100,9 @@ abstract class Transfer extends Resource
         return $this->committed;
     }
 
-    public function getFees()
+    public function getFee()
     {
-        return $this->fees;
+        return $this->fee;
     }
 
     public function getPayoutAt()

@@ -85,13 +85,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::$buy['resource_path'], $buy->getResourcePath());
         $this->assertEquals(self::$buy['committed'], $buy->isCommitted());
         $this->assertEquals(self::$buy['instant'], $buy->isInstant());
-        $this->assertInternalType('array', $buy->getFees());
-        $this->assertArrayHasKey(0, $buy->getFees());
-        $this->assertInstanceOf(Fee::class, $buy->getFees()[0]);
-        $this->assertEquals(self::$buy['fees'][0]['type'], $buy->getFees()[0]->getType());
-        $this->assertInstanceOf(Money::class, $buy->getFees()[0]->getAmount());
-        $this->assertEquals(self::$buy['fees'][0]['amount']['amount'], $buy->getFees()[0]->getAmount()->getAmount());
-        $this->assertEquals(self::$buy['fees'][0]['amount']['currency'], $buy->getFees()[0]->getAmount()->getCurrency());
+        $this->assertInstanceOf(Fee::class, $buy->getFee());
+        $this->assertEquals(self::$buy['fee']['type'], $buy->getFee()->getType());
+        $this->assertInstanceOf(Money::class, $buy->getFee()->getAmount());
+        $this->assertEquals(self::$buy['fee']['amount']['amount'], $buy->getFee()->getAmount()->getAmount());
+        $this->assertEquals(self::$buy['fee']['amount']['currency'], $buy->getFee()->getAmount()->getCurrency());
         $this->assertInstanceOf(\DateTime::class, $buy->getPayoutAt());
         $this->assertEquals(self::$buy, $buy->getRawData());
     }
@@ -235,15 +233,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         'resource_path' => '/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/buys/67e0eaec-07d7-54c4-a72c-2e92826897df',
         'committed' => true,
         'instant' => false,
-        'fees' => [
-            [
-                'type' => 'coinbase',
-                'amount' => ['amount' => '0.00', 'currency' => 'USD'],
-            ],
-            [
-                'type' => 'bank',
-                'amount' => ['amount' => '0.15', 'currency' => 'USD'],
-            ],
+        'fee' => [
+            'type' => 'coinbase',
+            'amount' => ['amount' => '0.00', 'currency' => 'USD'],
         ],
         'payout_at' => '2015-02-18T16:54:00-08:00',
     ];
@@ -316,21 +308,12 @@ class MapperTest extends \PHPUnit_Framework_TestCase
           "resource_path"=> "/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/buys/67e0eaec-07d7-54c4-a72c-2e92826897df",
           "committed"=> true,
           "instant"=> false,
-          "fees"=> [
-            [
+          "fee"=> [
               "type"=> "coinbase",
               "amount"=> [
                 "amount"=> "0.00",
                 "currency"=> "USD"
               ]
-            ],
-            [
-              "type"=> "bank",
-              "amount"=> [
-                "amount"=> "0.15",
-                "currency"=> "USD"
-              ]
-            ]
           ],
           "payout_at"=> "2015-02-18T16:54:00-08:00"
         ],
