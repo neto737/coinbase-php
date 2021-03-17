@@ -2,7 +2,9 @@
 
 namespace Coinbase\Wallet;
 
+use Coinbase\Wallet\ActiveRecord\AccountActiveRecord;
 use Coinbase\Wallet\ActiveRecord\ActiveRecordContext;
+use Coinbase\Wallet\Enum\CurrencyCode;
 use Coinbase\Wallet\Enum\Param;
 use Coinbase\Wallet\Resource\Account;
 use Coinbase\Wallet\Resource\Address;
@@ -13,8 +15,8 @@ use Coinbase\Wallet\Resource\Deposit;
 use Coinbase\Wallet\Resource\Merchant;
 use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Resource\PaymentMethod;
-use Coinbase\Wallet\Resource\Resource;
-use Coinbase\Wallet\Resource\ResourceCollection;
+use Coinbase\Wallet\Resource\Resource as BaseResource;
+use Coinbase\Wallet\Resource\ResourceCollection as BaseResourceCollection;
 use Coinbase\Wallet\Resource\Sell;
 use Coinbase\Wallet\Resource\Transaction;
 use Coinbase\Wallet\Resource\User;
@@ -45,9 +47,10 @@ class Client
     /**
      * Creates a new Coinbase client.
      *
+     * @param Configuration $configuration
      * @return Client A new Coinbase client
      */
-    public static function create(Configuration $configuration)
+    public static function create(Configuration $configuration): self
     {
         return new static(
             $configuration->createHttpClient(),
@@ -61,22 +64,23 @@ class Client
         $this->mapper = $mapper;
     }
 
-    public function getHttpClient()
+    public function getHttpClient(): HttpClient
     {
         return $this->http;
     }
 
-    public function getMapper()
+    public function getMapper(): Mapper
     {
         return $this->mapper;
     }
 
     /** @return array|null */
-    public function decodeLastResponse()
+    public function decodeLastResponse(): ?array
     {
         if ($response = $this->http->getLastResponse()) {
             return $this->mapper->decode($response);
         }
+        return null;
     }
 
     /**
@@ -89,12 +93,12 @@ class Client
 
     // data api
 
-    public function getCurrencies(array $params = [])
+    public function getCurrencies(array $params = []): array
     {
         return $this->getAndMapData('/v2/currencies', $params);
     }
 
-    public function getExchangeRates($currency = null, array $params = [])
+    public function getExchangeRates($currency = null, array $params = []): array
     {
         if ($currency) {
             $params['currency'] = $currency;
@@ -103,48 +107,48 @@ class Client
         return $this->getAndMapData('/v2/exchange-rates', $params);
     }
 
-    public function getBuyPrice($currency = null, array $params = [])
+    public function getBuyPrice($currency = null, array $params = []): ?Value\Money
     {
         // If AAA-BBB format, use it. If fiat only given, use BTC-XXX.
         // If undefined, use BTC-USD.
         if (strpos($currency, '-') !== false) {
             $pair = $currency;
         } else if ($currency) {
-            $pair = 'BTC-' . $currency;
+            $pair =  CurrencyCode::pair(CurrencyCode::BTC, $currency);
         } else {
-            $pair = 'BTC-USD';
+            $pair = CurrencyCode::pair(CurrencyCode::BTC, CurrencyCode::USD);
         }
 
         return $this->getAndMapMoney('/v2/prices/' . $pair . '/buy', $params);
     }
 
-    public function getSellPrice($currency = null, array $params = [])
+    public function getSellPrice($currency = null, array $params = []): ?Value\Money
     {
         if (strpos($currency, '-') !== false) {
             $pair = $currency;
         } else if ($currency) {
-            $pair = 'BTC-' . $currency;
+            $pair = CurrencyCode::pair(CurrencyCode::BTC, $currency);
         } else {
-            $pair = 'BTC-USD';
+            $pair = CurrencyCode::pair(CurrencyCode::BTC, CurrencyCode::USD);
         }
 
         return $this->getAndMapMoney('/v2/prices/' . $pair . '/sell', $params);
     }
 
-    public function getSpotPrice($currency = null, array $params = [])
+    public function getSpotPrice($currency = null, array $params = []): ?Value\Money
     {
         if (strpos($currency, '-') !== false) {
             $pair = $currency;
         } else if ($currency) {
-            $pair = 'BTC-' . $currency;
+            $pair = CurrencyCode::pair(CurrencyCode::BTC, $currency);
         } else {
-            $pair = 'BTC-USD';
+            $pair = CurrencyCode::pair(CurrencyCode::BTC, CurrencyCode::USD);
         }
 
         return $this->getAndMapMoney('/v2/prices/' . $pair . '/spot', $params);
     }
 
-    public function getHistoricPrices($currency = null, array $params = [])
+    public function getHistoricPrices($currency = null, array $params = []): array
     {
         if ($currency) {
             $params['currency'] = $currency;
@@ -153,7 +157,7 @@ class Client
         return $this->getAndMapData('/v2/prices/historic', $params);
     }
 
-    public function getTime(array $params = [])
+    public function getTime(array $params = []): array
     {
         return $this->getAndMapData('/v2/time', $params);
     }
@@ -172,8 +176,12 @@ class Client
 
     // users
 
-    /** @return User */
-    public function getUser($userId, array $params = [])
+    /**
+     * @param $userId
+     * @param array $params
+     * @return User
+     */
+    public function getUser($userId, array $params = []): User
     {
         return $this->getAndMap('/v2/users/'.$userId, $params, 'toUser');
     }
@@ -183,13 +191,16 @@ class Client
         $this->getAndMap($user->getResourcePath(), $params, 'toUser', $user);
     }
 
-    /** @return CurrentUser */
-    public function getCurrentUser(array $params = [])
+    /**
+     * @param array $params
+     * @return CurrentUser
+     */
+    public function getCurrentUser(array $params = []): CurrentUser
     {
         return $this->getAndMap('/v2/user', $params, 'toUser', new CurrentUser());
     }
 
-    public function getCurrentAuthorization(array $params = [])
+    public function getCurrentAuthorization(array $params = []): array
     {
         return $this->getAndMapData('/v2/user/auth', $params);
     }
@@ -208,25 +219,34 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Account[]
+     * @param array $params
+     * @return BaseResourceCollection|Account[]
      */
     public function getAccounts(array $params = [])
     {
         return $this->getAndMapCollection('/v2/accounts', $params, 'toAccounts');
     }
 
-    public function loadNextAccounts(ResourceCollection $accounts, array $params = [])
+    public function loadNextAccounts(BaseResourceCollection $accounts, array $params = [])
     {
         $this->loadNext($accounts, $params, 'toAccounts');
     }
 
-    /** @return Account */
-    public function getAccount($accountId, array $params = [])
+    /**
+     * @param string $accountId
+     * @param array $params
+     * @return Account
+     */
+    public function getAccount(string $accountId, array $params = []): Account
     {
         return $this->getAndMap('/v2/accounts/'.$accountId, $params, 'toAccount');
     }
 
-    public function refreshAccount(Account $account, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     */
+    public function refreshAccount($account, array $params = [])
     {
         $this->getAndMap($account->getResourcePath(), $params, 'toAccount', $account);
     }
@@ -237,25 +257,40 @@ class Client
         $this->postAndMap('/v2/accounts', $data + $params, 'toAccount', $account);
     }
 
-    /** @return Account */
-    public function getPrimaryAccount(array $params = [])
+    /**
+     * @param array $params
+     * @return Account
+     */
+    public function getPrimaryAccount(array $params = []): Account
     {
         return $this->getAndMap('/v2/accounts/primary', $params, 'toAccount');
     }
 
-    public function setPrimaryAccount(Account $account, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     */
+    public function setPrimaryAccount($account, array $params = [])
     {
         $this->postAndMap($account->getResourcePath().'/primary', $params, 'toAccount', $account);
     }
 
-    public function updateAccount(Account $account, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     */
+    public function updateAccount($account, array $params = [])
     {
         $data = $this->mapper->fromAccount($account);
         $response = $this->http->put($account->getResourcePath(), $data + $params);
         $this->mapper->toAccount($response, $account);
     }
 
-    public function deleteAccount(Account $account, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     */
+    public function deleteAccount($account, array $params = [])
     {
         $this->http->delete($account->getResourcePath(), $params);
     }
@@ -267,29 +302,36 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Address[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Address[]
      */
-    public function getAccountAddresses(Account $account, array $params = [])
+    public function getAccountAddresses($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/addresses', $params, 'toAddresses');
     }
 
-    public function loadNextAddresses(ResourceCollection $addresses, array $params = [])
+    public function loadNextAddresses(BaseResourceCollection $addresses, array $params = [])
     {
         $this->loadNext($addresses, $params, 'toAddresses');
     }
 
-    /** @return Address */
-    public function getAccountAddress(Account $account, $addressId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $addressId
+     * @param array $params
+     * @return Address
+     */
+    public function getAccountAddress($account, $addressId, array $params = []): Address
     {
         $path = sprintf('%s/addresses/%s', $account->getResourcePath(), $addressId);
 
         return $this->getAndMap($path, $params, 'toAddress');
     }
 
-    public function refreshAddress(Address $address, array $params = [])
+    public function refreshAddress(Address $address, array $params = []): BaseResource
     {
-        $this->getAndMap($address->getResourcePath(), $params, 'toAddress', $address);
+        return $this->getAndMap($address->getResourcePath(), $params, 'toAddress', $address);
     }
 
     /**
@@ -297,19 +339,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Transaction[]
+     * @param Address $address
+     * @param array $params
+     * @return BaseResourceCollection|Transaction[]
      */
     public function getAddressTransactions(Address $address, array $params = [])
     {
         return $this->getAndMapCollection($address->getResourcePath().'/transactions', $params, 'toTransactions');
     }
 
-    public function loadNextAddressTransactions(ResourceCollection $transactions, array $params = [])
+    public function loadNextAddressTransactions(BaseResourceCollection $transactions, array $params = [])
     {
         $this->loadNextTransactions($transactions, $params);
     }
 
-    public function createAccountAddress(Account $account, Address $address, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param Address $address
+     * @param array $params
+     * @return mixed
+     */
+    public function createAccountAddress($account, Address $address, array $params = [])
     {
         $data = $this->mapper->fromAddress($address);
         return $this->postAndMap($account->getResourcePath().'/addresses', $data + $params, 'toAddress', $address);
@@ -322,20 +372,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Transaction[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Transaction[]
      */
-    public function getAccountTransactions(Account $account, array $params = [])
+    public function getAccountTransactions($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/transactions', $params, 'toTransactions');
     }
 
-    public function loadNextTransactions(ResourceCollection $transactions, array $params = [])
+    public function loadNextTransactions(BaseResourceCollection $transactions, array $params = [])
     {
         $this->loadNext($transactions, $params, 'toTransactions');
     }
 
-    /** @return Transaction */
-    public function getAccountTransaction(Account $account, $transactionId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $transactionId
+     * @param array $params
+     * @return Transaction
+     */
+    public function getAccountTransaction($account, $transactionId, array $params = []): Transaction
     {
         $path = sprintf('%s/transactions/%s', $account->getResourcePath(), $transactionId);
 
@@ -355,8 +412,11 @@ class Client
      *  * skip_notifications (Boolean)
      *  * fee (float)
      *  * idem (string)
+     * @param Account|AccountActiveRecord $account
+     * @param Transaction $transaction
+     * @param array $params
      */
-    public function createAccountTransaction(Account $account, Transaction $transaction, array $params = [])
+    public function createAccountTransaction($account, Transaction $transaction, array $params = [])
     {
         $data = $this->mapper->fromTransaction($transaction);
         $this->postAndMap($account->getResourcePath().'/transactions', $data + $params, 'toTransaction', $transaction);
@@ -384,20 +444,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Buy[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Buy[]
      */
-    public function getAccountBuys(Account $account, array $params = [])
+    public function getAccountBuys($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/buys', $params, 'toBuys');
     }
 
-    public function loadNextBuys(ResourceCollection $buys, array $params = [])
+    public function loadNextBuys(BaseResourceCollection $buys, array $params = [])
     {
         $this->loadNext($buys, $params, 'toBuys');
     }
 
-    /** @return Buy */
-    public function getAccountBuy(Account $account, $buyId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $buyId
+     * @param array $params
+     * @return Buy
+     */
+    public function getAccountBuy($account, $buyId, array $params = []): Buy
     {
         $path = sprintf('%s/buys/%s', $account->getResourcePath(), $buyId);
 
@@ -417,8 +484,11 @@ class Client
      *  * agree_btc_amount_varies (Boolean)
      *  * commit (Boolean)
      *  * quote (Boolean)
+     * @param Account|AccountActiveRecord $account
+     * @param Buy $buy
+     * @param array $params
      */
-    public function createAccountBuy(Account $account, Buy $buy, array $params = [])
+    public function createAccountBuy($account, Buy $buy, array $params = [])
     {
         $data = $this->mapper->fromBuy($buy);
         $this->postAndMap($account->getResourcePath().'/buys', $data + $params, 'toBuy', $buy);
@@ -436,20 +506,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Sell[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Sell[]
      */
-    public function getAccountSells(Account $account, array $params = [])
+    public function getAccountSells($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/sells', $params, 'toSells');
     }
 
-    public function loadNextSells(ResourceCollection $sells, array $params = [])
+    public function loadNextSells(BaseResourceCollection $sells, array $params = [])
     {
         $this->loadNext($sells, $params, 'toSells');
     }
 
-    /** @return Sell */
-    public function getAccountSell(Account $account, $sellId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $sellId
+     * @param array $params
+     * @return Sell
+     */
+    public function getAccountSell($account, $sellId, array $params = []): Sell
     {
         $path = sprintf('%s/sells/%s', $account->getResourcePath(), $sellId);
 
@@ -469,8 +546,11 @@ class Client
      *  * agree_btc_amount_varies (Boolean)
      *  * commit (Boolean)
      *  * quote (Boolean)
+     * @param Account|AccountActiveRecord $account
+     * @param Sell $sell
+     * @param array $params
      */
-    public function createAccountSell(Account $account, Sell $sell, array $params = [])
+    public function createAccountSell($account, Sell $sell, array $params = [])
     {
         $data = $this->mapper->fromSell($sell);
         $this->postAndMap($account->getResourcePath().'/sells', $data + $params, 'toSell', $sell);
@@ -488,20 +568,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Deposit[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Deposit[]
      */
-    public function getAccountDeposits(Account $account, array $params = [])
+    public function getAccountDeposits($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/deposits', $params, 'toDeposits');
     }
 
-    public function loadNextDeposits(ResourceCollection $deposits, array $params = [])
+    public function loadNextDeposits(BaseResourceCollection $deposits, array $params = [])
     {
         $this->loadNext($deposits, $params, 'toDeposits');
     }
 
-    /** @return Deposit */
-    public function getAccountDeposit(Account $account, $depositId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $depositId
+     * @param array $params
+     * @return Deposit
+     */
+    public function getAccountDeposit($account, $depositId, array $params = []): Deposit
     {
         $path = sprintf('%s/deposits/%s', $account->getResourcePath(), $depositId);
 
@@ -519,8 +606,11 @@ class Client
      * Supported parameters include:
      *
      *  * commit (Boolean)
+     * @param Account|AccountActiveRecord $account
+     * @param Deposit $deposit
+     * @param array $params
      */
-    public function createAccountDeposit(Account $account, Deposit $deposit, array $params = [])
+    public function createAccountDeposit($account, Deposit $deposit, array $params = [])
     {
         $data = $this->mapper->fromDeposit($deposit);
         $this->postAndMap($account->getResourcePath().'/deposits', $data + $params, 'toDeposit', $deposit);
@@ -538,20 +628,27 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Withdrawal[]
+     * @param Account|AccountActiveRecord $account
+     * @param array $params
+     * @return BaseResourceCollection|Withdrawal[]
      */
-    public function getAccountWithdrawals(Account $account, array $params = [])
+    public function getAccountWithdrawals($account, array $params = [])
     {
         return $this->getAndMapCollection($account->getResourcePath().'/withdrawals', $params, 'toWithdrawals');
     }
 
-    public function loadNextWithdrawals(ResourceCollection $withdrawals, array $params = [])
+    public function loadNextWithdrawals(BaseResourceCollection $withdrawals, array $params = [])
     {
         $this->loadNext($withdrawals, $params, 'toWithdrawals');
     }
 
-    /** @return Withdrawal */
-    public function getAccountWithdrawal(Account $account, $withdrawalId, array $params = [])
+    /**
+     * @param Account|AccountActiveRecord $account
+     * @param $withdrawalId
+     * @param array $params
+     * @return Withdrawal
+     */
+    public function getAccountWithdrawal($account, $withdrawalId, array $params = []): Withdrawal
     {
         $path = sprintf('%s/withdrawals/%s', $account->getResourcePath(), $withdrawalId);
 
@@ -569,8 +666,11 @@ class Client
      * Supported parameters include:
      *
      *  * commit (Boolean)
+     * @param Account|AccountActiveRecord $account
+     * @param Withdrawal $withdrawal
+     * @param array $params
      */
-    public function createAccountWithdrawal(Account $account, Withdrawal $withdrawal, array $params = [])
+    public function createAccountWithdrawal($account, Withdrawal $withdrawal, array $params = [])
     {
         $data = $this->mapper->fromWithdrawal($withdrawal);
         $this->postAndMap($account->getResourcePath().'/withdrawals', $data + $params, 'toWithdrawal', $withdrawal);
@@ -588,20 +688,25 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|PaymentMethod[]
+     * @param array $params
+     * @return BaseResourceCollection|PaymentMethod[]
      */
     public function getPaymentMethods(array $params = [])
     {
         return $this->getAndMapCollection('/v2/payment-methods', $params, 'toPaymentMethods');
     }
 
-    public function loadNextPaymentMethods(ResourceCollection $paymentMethods, array $params = [])
+    public function loadNextPaymentMethods(BaseResourceCollection $paymentMethods, array $params = [])
     {
         $this->loadNext($paymentMethods, $params, 'toPaymentMethods');
     }
 
-    /** @return PaymentMethod */
-    public function getPaymentMethod($paymentMethodId, array $params = [])
+    /**
+     * @param $paymentMethodId
+     * @param array $params
+     * @return PaymentMethod
+     */
+    public function getPaymentMethod($paymentMethodId, array $params = []): PaymentMethod
     {
         return $this->getAndMap('/v2/payment-methods/'.$paymentMethodId, $params, 'toPaymentMethod');
     }
@@ -613,8 +718,12 @@ class Client
 
     // merchant api
 
-    /** @return Merchant */
-    public function getMerchant($merchantId, array $params = [])
+    /**
+     * @param $merchantId
+     * @param array $params
+     * @return Merchant
+     */
+    public function getMerchant($merchantId, array $params = []): Merchant
     {
         return $this->getAndMap('/v2/merchants/'.$merchantId, $params, 'toMerchant');
     }
@@ -629,20 +738,25 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Order[]
+     * @param array $params
+     * @return BaseResourceCollection|Order[]
      */
     public function getOrders(array $params = [])
     {
         return $this->getAndMapCollection('/v2/orders', $params, 'toOrders');
     }
 
-    public function loadNextOrders(ResourceCollection $orders, array $params = [])
+    public function loadNextOrders(BaseResourceCollection $orders, array $params = [])
     {
         $this->loadNext($orders, $params, 'toOrders');
     }
 
-    /** @return Order */
-    public function getOrder($orderId, array $params = [])
+    /**
+     * @param $orderId
+     * @param array $params
+     * @return Order
+     */
+    public function getOrder($orderId, array $params = []): Order
     {
         return $this->getAndMap('/v2/orders/'.$orderId, $params, 'toOrder');
     }
@@ -665,6 +779,9 @@ class Client
      *
      *  * mispayment (string)
      *  * refund_address (string)
+     * @param Order $order
+     * @param $currency
+     * @param array $params
      */
     public function refundOrder(Order $order, $currency, array $params = [])
     {
@@ -678,20 +795,25 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Checkout[]
+     * @param array $params
+     * @return BaseResourceCollection|Checkout[]
      */
     public function getCheckouts(array $params = [])
     {
         return $this->getAndMapCollection('/v2/checkouts', $params, 'toCheckouts');
     }
 
-    public function loadNextCheckouts(ResourceCollection $checkouts, array $params = [])
+    public function loadNextCheckouts(BaseResourceCollection $checkouts, array $params = [])
     {
         $this->loadNext($checkouts, $params, 'toCheckouts');
     }
 
-    /** @return Checkout */
-    public function getCheckout($checkoutId, array $params = [])
+    /**
+     * @param $checkoutId
+     * @param array $params
+     * @return Checkout
+     */
+    public function getCheckout($checkoutId, array $params = []): Checkout
     {
         return $this->getAndMap('/v2/checkouts/'.$checkoutId, $params, 'toCheckout');
     }
@@ -712,20 +834,25 @@ class Client
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Notification[]
+     * @param array $params
+     * @return BaseResourceCollection|Notification[]
      */
     public function getNotifications(array $params = [])
     {
         return $this->getAndMapCollection('/v2/notifications', $params, 'toNotifications');
     }
 
-    public function loadNextNotifications(ResourceCollection $notifications, array $params = [])
+    public function loadNextNotifications(BaseResourceCollection $notifications, array $params = [])
     {
         $this->loadNext($notifications, $params, 'toNotifications');
     }
 
-    /** @return Notification */
-    public function getNotification($notificationId, array $params = [])
+    /**
+     * @param string $notificationId
+     * @param array $params
+     * @return Notification
+     */
+    public function getNotification(string $notificationId, array $params = []): Notification
     {
         return $this->getAndMap('/v2/notifications/'.$notificationId, $params, 'toNotification');
     }
@@ -738,9 +865,10 @@ class Client
     /**
      * Create a Notification object from the body of a notification webhook
      *
-     * @return Notification
+     * @param $webhook_body
+     * @return BaseResource
      */
-    public function parseNotification($webhook_body)
+    public function parseNotification($webhook_body): BaseResource
     {
         $data = json_decode($webhook_body, true);
         return $this->mapper->injectNotification($data);
@@ -749,9 +877,11 @@ class Client
     /**
      * Verifies the authenticity of a merchant callback from Coinbase
      *
+     * @param $body
+     * @param $signature
      * @return Boolean
      */
-    public function verifyCallback($body, $signature)
+    public function verifyCallback($body, $signature): bool
     {
         $signature_buffer = base64_decode( $signature );
         return (1 == openssl_verify($body, $signature_buffer, self::getCallbackPublicKey(), OPENSSL_ALGO_SHA256));
@@ -762,9 +892,9 @@ class Client
      *
      * @return String
      */
-    public static function getCallbackPublicKey()
+    public static function getCallbackPublicKey(): string
     {
-        $key = <<<EOD
+        return <<<EOD
 -----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA9MsJBuXzFGIh/xkAA9Cy
 QdZKRerV+apyOAWY7sEYV/AJg+AX/tW2SHeZj+3OilNYm5DlBi6ZzDboczmENrFn
@@ -780,7 +910,6 @@ I7ibYmVR3xNsVEpupdFcTJYGzOQBo8orHKPFn1jj31DIIKociCwu6m8ICDgLuMHj
 4z+EqsFcIZzjkSG16BjjjTkCAwEAAQ==
 -----END PUBLIC KEY-----
 EOD;
-        return $key;
     }
 
     /**
@@ -788,41 +917,52 @@ EOD;
      *
      * Supports pagination parameters.
      *
-     * @return ResourceCollection|Order[]
+     * @param Checkout $checkout
+     * @param array $params
+     * @return BaseResourceCollection|Order[]
      */
     public function getCheckoutOrders(Checkout $checkout, array $params = [])
     {
         return $this->getAndMapCollection($checkout->getResourcePath().'/orders', $params, 'toOrders');
     }
 
-    public function loadNextCheckoutOrders(ResourceCollection $orders, array $params = [])
+    public function loadNextCheckoutOrders(BaseResourceCollection $orders, array $params = [])
     {
         $this->loadNextOrders($orders, $params);
     }
 
-    /** @return Order */
-    public function createNewCheckoutOrder(Checkout $checkout, array $params = [])
+    /**
+     * @param Checkout $checkout
+     * @param array $params
+     * @return Order
+     */
+    public function createNewCheckoutOrder(Checkout $checkout, array $params = []): Order
     {
         return $this->postAndMap($checkout->getResourcePath().'/orders', $params, 'toOrder');
     }
 
     // private
 
-    private function getAndMapData($path, array $params = [])
+    private function getAndMapData($path, array $params = []): array
     {
         $response = $this->http->get($path, $params);
 
         return $this->mapper->toData($response);
     }
 
-    private function getAndMapMoney($path, array $params = [])
+    private function getAndMapMoney($path, array $params = []): ?Value\Money
     {
         $response = $this->http->get($path, $params);
 
         return $this->mapper->toMoney($response);
     }
 
-    /** @return ResourceCollection|Resource[] */
+    /**
+     * @param $path
+     * @param array $params
+     * @param $mapperMethod
+     * @return BaseResourceCollection|BaseResource[]
+     */
     private function getAndMapCollection($path, array $params, $mapperMethod)
     {
         $fetchAll = isset($params[Param::FETCH_ALL]) ? $params[Param::FETCH_ALL] : false;
@@ -830,7 +970,7 @@ EOD;
 
         $response = $this->http->get($path, $params);
 
-        /** @var ResourceCollection $collection */
+        /** @var BaseResourceCollection $collection */
         $collection = $this->mapper->$mapperMethod($response);
 
         if ($fetchAll) {
@@ -842,22 +982,40 @@ EOD;
         return $collection;
     }
 
-    /** @return Resource */
-    private function getAndMap($path, array $params, $mapperMethod, Resource $resource = null)
+    /**
+     * @param $path
+     * @param array $params
+     * @param $mapperMethod
+     * @param BaseResource|null $resource
+     * @return mixed
+     */
+    private function getAndMap($path, array $params, $mapperMethod, BaseResource $resource = null)
     {
         $response = $this->http->get($path, $params);
 
         return $this->mapper->$mapperMethod($response, $resource);
     }
 
-    private function postAndMap($path, array $params, $mapperMethod, Resource $resource = null)
+    /**
+     * @param $path
+     * @param array $params
+     * @param $mapperMethod
+     * @param BaseResource|null $resource
+     * @return mixed
+     */
+    private function postAndMap($path, array $params, $mapperMethod, BaseResource $resource = null)
     {
         $response = $this->http->post($path, $params);
 
         return $this->mapper->$mapperMethod($response, $resource);
     }
 
-    private function loadNext(ResourceCollection $collection, array $params, $mapperMethod)
+    /**
+     * @param BaseResourceCollection $collection
+     * @param array $params
+     * @param $mapperMethod
+     */
+    private function loadNext(BaseResourceCollection $collection, array $params, $mapperMethod)
     {
         $response = $this->http->get($collection->getNextUri(), $params);
         $nextPage = $this->mapper->$mapperMethod($response);
