@@ -2,6 +2,7 @@
 
 namespace Coinbase\Wallet;
 
+use Carbon\Carbon;
 use Coinbase\Wallet\Enum\ResourceType;
 use Coinbase\Wallet\Exception\LogicException;
 use Coinbase\Wallet\Exception\RuntimeException;
@@ -27,8 +28,8 @@ use Coinbase\Wallet\Resource\Merchant;
 use Coinbase\Wallet\Resource\Notification;
 use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Resource\PaymentMethod;
-use Coinbase\Wallet\Resource\Resource;
-use Coinbase\Wallet\Resource\ResourceCollection;
+use Coinbase\Wallet\Resource\Resource as BaseResource;
+use Coinbase\Wallet\Resource\ResourceCollection as BaseResourceCollection;
 use Coinbase\Wallet\Resource\RippleNetwork;
 use Coinbase\Wallet\Resource\Sell;
 use Coinbase\Wallet\Resource\Transaction;
@@ -37,15 +38,15 @@ use Coinbase\Wallet\Resource\Withdrawal;
 use Coinbase\Wallet\Resource\RippleAddress;
 use Coinbase\Wallet\Resource\ZrxAddress;
 use Coinbase\Wallet\Resource\ZrxNetwork;
-use Coinbase\Wallet\Resource\Notification;
-use Coinbase\Wallet\Resource\BitcoinNetwork;
-use Coinbase\Wallet\Resource\BitcoinCashNetwork;
 use Coinbase\Wallet\Resource\USDCoinAddress;
 use Coinbase\Wallet\Resource\USDCoinNetwork;
 use Coinbase\Wallet\Value\Fee;
 use Coinbase\Wallet\Value\Money;
 use Coinbase\Wallet\Value\Network;
+use DateTime;
 use Psr\Http\Message\ResponseInterface;
+use ReflectionObject;
+use ReflectionProperty;
 
 class Mapper
 {
@@ -53,14 +54,21 @@ class Mapper
 
     // users
 
-    /** @return User */
-    public function toUser(ResponseInterface $response, User $user = null)
+    /**
+     * @param ResponseInterface $response
+     * @param User|null $user
+     * @return User
+     */
+    public function toUser(ResponseInterface $response, User $user = null): User
     {
         return $this->injectUser($this->decode($response)['data'], $user);
     }
 
-    /** @return array */
-    public function fromCurrentUser(CurrentUser $user)
+    /**
+     * @param CurrentUser $user
+     * @return array
+     */
+    public function fromCurrentUser(CurrentUser $user): array
     {
         return array_intersect_key(
             $this->extractData($user),
@@ -70,20 +78,30 @@ class Mapper
 
     // accounts
 
-    /** @return ResourceCollection */
-    public function toAccounts(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toAccounts(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectAccount');
     }
 
-    /** @return Account */
-    public function toAccount(ResponseInterface $response, Account $account = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Account|null $account
+     * @return Account
+     */
+    public function toAccount(ResponseInterface $response, Account $account = null): Account
     {
         return $this->injectAccount($this->decode($response)['data'], $account);
     }
 
-    /** @return array */
-    public function fromAccount(Account $account)
+    /**
+     * @param Account $account
+     * @return array
+     */
+    public function fromAccount(Account $account): array
     {
         return array_intersect_key(
             $this->extractData($account),
@@ -93,20 +111,30 @@ class Mapper
 
     // addresses
 
-    /** @return ResourceCollection */
-    public function toAddresses(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toAddresses(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectAddress');
     }
 
-    /** @return Address */
-    public function toAddress(ResponseInterface $response, Address $address = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Address|null $address
+     * @return Address
+     */
+    public function toAddress(ResponseInterface $response, Address $address = null): Address
     {
         return $this->injectAddress($this->decode($response)['data'], $address);
     }
 
-    /** @return array */
-    public function fromAddress(Address $address)
+    /**
+     * @param Address $address
+     * @return array
+     */
+    public function fromAddress(Address $address): array
     {
         return array_intersect_key(
             $this->extractData($address),
@@ -116,24 +144,34 @@ class Mapper
 
     // transactions
 
-    /** @return ResourceCollection */
-    public function toTransactions(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toTransactions(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectTransaction');
     }
 
-    /** @return Transaction */
-    public function toTransaction(ResponseInterface $response, Transaction $transaction = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Transaction|null $transaction
+     * @return Transaction
+     */
+    public function toTransaction(ResponseInterface $response, Transaction $transaction = null): Transaction
     {
         return $this->injectTransaction($this->decode($response)['data'], $transaction);
     }
 
-    /** @return array */
-    public function fromTransaction(Transaction $transaction)
+    /**
+     * @param Transaction $transaction
+     * @return array
+     */
+    public function fromTransaction(Transaction $transaction): array
     {
         // validate
         $to = $transaction->getTo();
-        if ($to && !$to instanceof Email && !$to instanceof BitcoinAddress && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof USDCoinAddress && !$to instanceof ZrxAddress && !$to instanceof RippleAddress && !$to instanceof EosioAddress && !$to instanceof Account) {
+        if ($to && !($to instanceof Email) && !($to instanceof BitcoinAddress) && !$to instanceof LitecoinAddress && !$to instanceof EthrereumAddress && !$to instanceof BitcoinCashAddress && !$to instanceof USDCoinAddress && !$to instanceof ZrxAddress && !$to instanceof RippleAddress && !$to instanceof EosioAddress && !$to instanceof Account) {
             throw new LogicException(
                 'The Coinbase API only accepts transactions to an account, email, bitcoin address, bitcoin cash address, litecoin address, ethereum address, usd coin address, zrx address, xrp address or eos address'
             );
@@ -169,20 +207,30 @@ class Mapper
 
     // buys
 
-    /** @return ResourceCollection */
-    public function toBuys(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toBuys(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectBuy');
     }
 
-    /** @return Buy */
-    public function toBuy(ResponseInterface $response, Buy $buy = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Buy|null $buy
+     * @return Buy
+     */
+    public function toBuy(ResponseInterface $response, Buy $buy = null): Buy
     {
         return $this->injectBuy($this->decode($response)['data'], $buy);
     }
 
-    /** @return array */
-    public function fromBuy(Buy $buy)
+    /**
+     * @param Buy $buy
+     * @return array
+     */
+    public function fromBuy(Buy $buy): array
     {
         // validate
         if ($buy->getAmount() && $buy->getTotal()) {
@@ -224,20 +272,30 @@ class Mapper
 
     // sells
 
-    /** @return ResourceCollection */
-    public function toSells(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toSells(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectSell');
     }
 
-    /** @return Sell */
-    public function toSell(ResponseInterface $response, Sell $sell = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Sell|null $sell
+     * @return Sell
+     */
+    public function toSell(ResponseInterface $response, Sell $sell = null): Sell
     {
         return $this->injectSell($this->decode($response)['data'], $sell);
     }
 
-    /** @return array */
-    public function fromSell(Sell $sell)
+    /**
+     * @param Sell $sell
+     * @return array
+     */
+    public function fromSell(Sell $sell): array
     {
         // validate
         if ($sell->getAmount() && $sell->getTotal()) {
@@ -279,20 +337,30 @@ class Mapper
 
     // deposits
 
-    /** @return ResourceCollection */
-    public function toDeposits(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toDeposits(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectDeposit');
     }
 
-    /** @return Deposit */
-    public function toDeposit(ResponseInterface $response, Deposit $deposit = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Deposit|null $deposit
+     * @return Deposit
+     */
+    public function toDeposit(ResponseInterface $response, Deposit $deposit = null): Deposit
     {
         return $this->injectDeposit($this->decode($response)['data'], $deposit);
     }
 
-    /** @return array */
-    public function fromDeposit(Deposit $deposit)
+    /**
+     * @param Deposit $deposit
+     * @return array
+     */
+    public function fromDeposit(Deposit $deposit): array
     {
         // filter
         $data = array_intersect_key(
@@ -320,20 +388,30 @@ class Mapper
 
     // withdrawals
 
-    /** @return ResourceCollection */
-    public function toWithdrawals(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toWithdrawals(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectWithdrawal');
     }
 
-    /** @return Withdrawal */
-    public function toWithdrawal(ResponseInterface $response, Withdrawal $withdrawal = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Withdrawal|null $withdrawal
+     * @return Withdrawal
+     */
+    public function toWithdrawal(ResponseInterface $response, Withdrawal $withdrawal = null): Withdrawal
     {
         return $this->injectWithdrawal($this->decode($response)['data'], $withdrawal);
     }
 
-    /** @return array */
-    public function fromWithdrawal(Withdrawal $withdrawal)
+    /**
+     * @param Withdrawal $withdrawal
+     * @return array
+     */
+    public function fromWithdrawal(Withdrawal $withdrawal): array
     {
         // filter
         $data = array_intersect_key(
@@ -361,42 +439,63 @@ class Mapper
 
     // payment methods
 
-    /** @return ResourceCollection */
-    public function toPaymentMethods(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toPaymentMethods(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectPaymentMethod');
     }
 
-    /** @return PaymentMethod */
-    public function toPaymentMethod(ResponseInterface $response, PaymentMethod $paymentMethod = null)
+    /**
+     * @param ResponseInterface $response
+     * @param PaymentMethod|null $paymentMethod
+     * @return PaymentMethod
+     */
+    public function toPaymentMethod(ResponseInterface $response, PaymentMethod $paymentMethod = null): PaymentMethod
     {
         return $this->injectPaymentMethod($this->decode($response)['data'], $paymentMethod);
     }
 
     // merchants
 
-    /** @return Merchant */
-    public function toMerchant(ResponseInterface $response, Merchant $merchant = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Merchant|null $merchant
+     * @return Merchant
+     */
+    public function toMerchant(ResponseInterface $response, Merchant $merchant = null): Merchant
     {
         return $this->injectMerchant($this->decode($response)['data'], $merchant);
     }
 
     // orders
 
-    /** @return ResourceCollection */
-    public function toOrders(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toOrders(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectOrder');
     }
 
-    /** @return Order */
-    public function toOrder(ResponseInterface $response, Order $order = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Order|null $order
+     * @return Order
+     */
+    public function toOrder(ResponseInterface $response, Order $order = null): Order
     {
         return $this->injectOrder($this->decode($response)['data'], $order);
     }
 
-    /** @return array */
-    public function fromOrder(Order $order)
+    /**
+     * @param Order $order
+     * @return array
+     */
+    public function fromOrder(Order $order): array
     {
         // filter
         $data = array_intersect_key(
@@ -419,20 +518,30 @@ class Mapper
 
     // checkouts
 
-    /** @return ResourceCollection */
-    public function toCheckouts(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toCheckouts(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectCheckout');
     }
 
-    /** @return Checkout */
-    public function toCheckout(ResponseInterface $response, Checkout $checkout = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Checkout|null $checkout
+     * @return Checkout
+     */
+    public function toCheckout(ResponseInterface $response, Checkout $checkout = null): Checkout
     {
         return $this->injectCheckout($this->decode($response)['data'], $checkout);
     }
 
-    /** @return array */
-    public function fromCheckout(Checkout $checkout)
+    /**
+     * @param Checkout $checkout
+     * @return array
+     */
+    public function fromCheckout(Checkout $checkout): array
     {
         $keys = [
             'amount', 'name', 'description', 'type', 'style',
@@ -463,53 +572,69 @@ class Mapper
 
     // notifications
 
-    /** @return ResourceCollection */
-    public function toNotifications(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return BaseResourceCollection
+     */
+    public function toNotifications(ResponseInterface $response): BaseResourceCollection
     {
         return $this->toCollection($response, 'injectNotification');
     }
 
-    /** @return Notification */
-    public function toNotification(ResponseInterface $response, Notification $notification = null)
+    /**
+     * @param ResponseInterface $response
+     * @param Notification|null $notification
+     * @return Notification
+     */
+    public function toNotification(ResponseInterface $response, Notification $notification = null): Notification
     {
         return $this->injectNotification($this->decode($response)['data'], $notification);
     }
 
     // misc
 
-    /** @return array */
-    public function toData(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return array
+     */
+    public function toData(ResponseInterface $response): array
     {
         return $this->decode($response)['data'];
     }
 
-    /** @return Money|null */
-    public function toMoney(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return Money|null
+     */
+    public function toMoney(ResponseInterface $response): ?Money
     {
         $data = $this->decode($response)['data'];
 
         return new Money($data['amount'], $data['currency']);
     }
 
-    /** @return array */
-    public function decode(ResponseInterface $response)
+    /**
+     * @param ResponseInterface $response
+     * @return array
+     */
+    public function decode(ResponseInterface $response): array
     {
         return json_decode($response->getBody(), true);
     }
 
     // private
 
-    private function toCollection(ResponseInterface $response, $method)
+    private function toCollection(ResponseInterface $response, $method): BaseResourceCollection
     {
         $data = $this->decode($response);
 
         if (isset($data['pagination'])) {
-            $coll = new ResourceCollection(
+            $coll = new BaseResourceCollection(
                 $data['pagination']['previous_uri'],
                 $data['pagination']['next_uri']
             );
         } else {
-            $coll = new ResourceCollection();
+            $coll = new BaseResourceCollection();
         }
 
         foreach ($data['data'] as $resource) {
@@ -519,77 +644,77 @@ class Mapper
         return $coll;
     }
 
-    private function injectUser(array $data, User $user = null)
+    private function injectUser(array $data, User $user = null): BaseResource
     {
         return $this->injectResource($data, $user ?: new User());
     }
 
-    private function injectAccount(array $data, Account $account = null)
+    private function injectAccount(array $data, Account $account = null): BaseResource
     {
         return $this->injectResource($data, $account ?: new Account());
     }
 
-    private function injectAddress(array $data, Address $address = null)
+    private function injectAddress(array $data, Address $address = null): BaseResource
     {
         return $this->injectResource($data, $address ?: new Address());
     }
 
-    private function injectApplication(array $data, Application $application = null)
+    private function injectApplication(array $data, Application $application = null): BaseResource
     {
         return $this->injectResource($data, $application ?: new Application());
     }
 
-    private function injectTransaction(array $data, Transaction $transaction = null)
+    private function injectTransaction(array $data, Transaction $transaction = null): BaseResource
     {
         return $this->injectResource($data, $transaction ?: new Transaction());
     }
 
-    private function injectBuy(array $data, Buy $buy = null)
+    private function injectBuy(array $data, Buy $buy = null): BaseResource
     {
         return $this->injectResource($data, $buy ?: new Buy());
     }
 
-    private function injectSell(array $data, Sell $sell = null)
+    private function injectSell(array $data, Sell $sell = null): BaseResource
     {
         return $this->injectResource($data, $sell ?: new Sell());
     }
 
-    private function injectDeposit(array $data, Deposit $deposit = null)
+    private function injectDeposit(array $data, Deposit $deposit = null): BaseResource
     {
         return $this->injectResource($data, $deposit ?: new Deposit());
     }
 
-    private function injectWithdrawal(array $data, Withdrawal $withdrawal = null)
+    private function injectWithdrawal(array $data, Withdrawal $withdrawal = null): BaseResource
     {
         return $this->injectResource($data, $withdrawal ?: new Withdrawal());
     }
 
-    private function injectPaymentMethod(array $data, PaymentMethod $paymentMethod = null)
+    private function injectPaymentMethod(array $data, PaymentMethod $paymentMethod = null): BaseResource
     {
         return $this->injectResource($data, $paymentMethod ?: new PaymentMethod());
     }
 
-    private function injectMerchant(array $data, Merchant $merchant = null)
+    private function injectMerchant(array $data, Merchant $merchant = null): BaseResource
     {
         return $this->injectResource($data, $merchant ?: new Merchant());
     }
 
-    private function injectOrder(array $data, Order $order = null)
+    private function injectOrder(array $data, Order $order = null): BaseResource
     {
         return $this->injectResource($data, $order ?: new Order());
     }
 
-    private function injectCheckout(array $data, Checkout $checkout = null)
+    private function injectCheckout(array $data, Checkout $checkout = null): BaseResource
     {
         return $this->injectResource($data, $checkout ?: new Checkout());
     }
 
-    public function injectNotification(array $data, Notification $notification = null)
+    public function injectNotification(array $data, Notification $notification = null): BaseResource
     {
         return $this->injectResource($data, $notification ?: new Notification());
     }
 
-    private function injectResource(array $data, Resource $resource)
+    private function injectResource(array $data, BaseResource $resource): BaseResource
     {
         $properties = $this->getReflectionProperties($resource);
 
@@ -605,7 +730,7 @@ class Mapper
         return $resource;
     }
 
-    private function extractData(Resource $resource)
+    private function extractData(BaseResource $resource): array
     {
         $data = [];
         foreach ($this->getReflectionProperties($resource) as $key => $property) {
@@ -620,8 +745,11 @@ class Mapper
         return $data;
     }
 
-    /** @return \ReflectionProperty[] */
-    private function getReflectionProperties(Resource $resource)
+    /**
+     * @param BaseResource $resource
+     * @return ReflectionProperty[]
+     */
+    private function getReflectionProperties(BaseResource $resource): array
     {
         $type = $resource->getResourceType();
 
@@ -629,7 +757,7 @@ class Mapper
             return $this->reflection[$type];
         }
 
-        $class = new \ReflectionObject($resource);
+        $class = new ReflectionObject($resource);
         $properties = [];
         do {
             foreach ($class->getProperties() as $property) {
@@ -645,7 +773,7 @@ class Mapper
     {
         if ('_at' === substr($key, -3)) {
             // timestamp
-            return new \DateTime($value);
+            return new Carbon($value);
         }
 
         if (is_scalar($value)) {
@@ -703,9 +831,9 @@ class Mapper
             return $list;
         }
 
-        if ($value instanceof \DateTime) {
+        if ($value instanceof DateTime || $value instanceof Carbon) {
             // timestamp
-            return $value->format(\DateTime::ISO8601);
+            return $value->format(DateTime::ISO8601);
         }
 
         if ($value instanceof Email) {
@@ -779,7 +907,7 @@ class Mapper
             ];
         }
 
-        if ($value instanceof Resource) {
+        if ($value instanceof BaseResource) {
             // resource
             return [
                 'id' => $value->getId(),
@@ -821,7 +949,7 @@ class Mapper
         return $value;
     }
 
-    private static function snakeCase($word)
+    private static function snakeCase($word): string
     {
         // copied from doctrine/inflector
         return strtolower(preg_replace('~(?<=\\w)([A-Z])~', '_$1', $word));
@@ -834,12 +962,18 @@ class Mapper
         switch ($type) {
             case ResourceType::ACCOUNT:
                 return $expanded ? $this->injectAccount($data) : new Account($data['resource_path']);
+            case ResourceType::ZRX_ADDRESS:
+            case ResourceType::RIPPLE_ADDRESS:
+            case ResourceType::EOSIO_ADDRESS:
+            case ResourceType::BITCOIN_CASH_ADDRESS:
+            case ResourceType::USD_COIN_ADDRESS:
+            case ResourceType::ETHEREUM_ADDRESS:
+            case ResourceType::LITECOIN_ADDRESS:
+            case ResourceType::BITCOIN_ADDRESS:
             case ResourceType::ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
+                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path'], $type);
             case ResourceType::APPLICATION:
                 return $expanded ? $this->injectApplication($data) : new Application($data['resource_path']);
-            case ResourceType::BITCOIN_ADDRESS:
-                return new BitcoinAddress($data['address']);
             case ResourceType::BUY:
                 return $expanded ? $this->injectBuy($data) : new Buy($data['resource_path']);
             case ResourceType::CHECKOUT:
@@ -880,20 +1014,6 @@ class Mapper
                 return new ZrxNetwork();
             case ResourceType::USD_COIN_NETWORK:
                 return new USDCoinNetwork();
-            case ResourceType::LITECOIN_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::ETHEREUM_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::USD_COIN_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::BITCOIN_CASH_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::EOSIO_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::RIPPLE_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
-            case ResourceType::ZRX_ADDRESS:
-                return $expanded ? $this->injectAddress($data) : new Address($data['resource_path']);
             default:
                 throw new RuntimeException('Unrecognized resource type: '.$type);
         }
@@ -902,9 +1022,10 @@ class Mapper
     /**
      * Checks if a data array represents an expanded resource.
      *
+     * @param array $data
      * @return Boolean Whether the data array represents a complete resource
      */
-    private function isExpanded(array $data)
+    private function isExpanded(array $data): bool
     {
         return (Boolean) array_diff(array_keys($data), ['id', 'resource', 'resource_path']);
     }
