@@ -4,6 +4,7 @@ namespace Coinbase\Wallet\Resource;
 
 use Coinbase\Wallet\ActiveRecord\AddressActiveRecord;
 use Coinbase\Wallet\Enum\ResourceType;
+use DateTime;
 
 class Address extends Resource
 {
@@ -19,11 +20,20 @@ class Address extends Resource
     /** @var string */
     private $callbackUrl;
 
-    /** @var \DateTime */
+    /** @var DateTime */
     private $createdAt;
 
-    /** @var \DateTime */
+    /** @var DateTime */
     private $updatedAt;
+
+    /** @var string */
+    private $network;
+
+    /** @var string */
+    private $uriScheme;
+
+    /** @var string */
+    private $depositUri;
 
     /**
      * Creates an address reference.
@@ -33,24 +43,24 @@ class Address extends Resource
      *
      * @return Address An address reference
      */
-    public static function reference($accountId, $addressId)
+    public static function reference(string $accountId, string $addressId): Address
     {
         $resourcePath = sprintf('/v2/accounts/%s/addresses/%s', $accountId, $addressId);
 
         return new static($resourcePath);
     }
 
-    public function __construct($resourcePath = null)
+    public function __construct($resourcePath = null, $resourceType = ResourceType::ADDRESS)
     {
-        parent::__construct(ResourceType::ADDRESS, $resourcePath);
+        parent::__construct($resourceType, $resourcePath);
     }
 
-    public function getAddress()
+    public function getAddress(): string
     {
         return $this->address;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -60,7 +70,22 @@ class Address extends Resource
         $this->name = $name;
     }
 
-    public function getCallbackUrl()
+    public function getNetwork(): string
+    {
+        return $this->network;
+    }
+
+    public function getUriScheme(): string
+    {
+        return $this->uriScheme;
+    }
+
+    public function getDepositUri(): string
+    {
+        return $this->depositUri;
+    }
+
+    public function getCallbackUrl(): string
     {
         return $this->callbackUrl;
     }
@@ -70,12 +95,12 @@ class Address extends Resource
         $this->callbackUrl = $callbackUrl;
     }
 
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt()
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
