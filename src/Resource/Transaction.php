@@ -77,7 +77,7 @@ class Transaction extends Resource
      *
      * @return Transaction A transaction reference
      */
-    public static function reference($accountId, $transactionId)
+    public static function reference(string $accountId, string $transactionId): Transaction
     {
         $resourcePath = sprintf('/v2/accounts/%s/transactions/%s', $accountId, $transactionId);
 
@@ -87,9 +87,10 @@ class Transaction extends Resource
     /**
      * Creates a new send transaction.
      *
+     * @param null $attrs
      * @return Transaction A new send transaction
      */
-    public static function send($attrs = null)
+    public static function send($attrs = null): Transaction
     {
         return new static(TransactionType::SEND, $attrs);
     }
@@ -97,9 +98,10 @@ class Transaction extends Resource
     /**
      * Creates a new transfer transaction.
      *
+     * @param null $attrs
      * @return Transaction A new transfer transaction
      */
-    public static function transfer($attrs = null)
+    public static function transfer($attrs = null): Transaction
     {
         return new static(TransactionType::TRANSFER, $attrs);
     }
@@ -107,9 +109,10 @@ class Transaction extends Resource
     /**
      * Creates a new request transaction.
      *
+     * @param null $attrs
      * @return Transaction A new request transaction
      */
-    public static function request($attrs = null)
+    public static function request($attrs = null): Transaction
     {
         return new static(TransactionType::REQUEST, $attrs);
     }
@@ -121,17 +124,17 @@ class Transaction extends Resource
         $this->type = $type;
     }
 
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
 
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function getAmount()
+    public function getAmount(): Money
     {
         return $this->amount;
     }
@@ -146,12 +149,12 @@ class Transaction extends Resource
         $this->amount = new Money($amount, CurrencyCode::BTC);
     }
 
-    public function getNativeAmount()
+    public function getNativeAmount(): Money
     {
         return $this->nativeAmount;
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -161,7 +164,7 @@ class Transaction extends Resource
         $this->description = $description;
     }
 
-    public function getFee()
+    public function getFee(): string
     {
         return $this->fee;
     }
@@ -171,27 +174,31 @@ class Transaction extends Resource
         $this->fee = (string) $fee;
     }
 
-    public function isInstantExchange()
+    /**
+     * @return bool
+     * @deprecated Removed deprecated instant exchange feature.
+     */
+    public function isInstantExchange(): bool
     {
         return $this->instantExchange;
     }
 
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
 
-    public function getNetwork()
+    public function getNetwork(): Network
     {
         return $this->network;
     }
 
-    public function getTo()
+    public function getTo(): Resource
     {
         return $this->to;
     }

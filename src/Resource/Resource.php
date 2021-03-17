@@ -35,27 +35,27 @@ class Resource
         }
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getResourceType()
+    public function getResourceType(): string
     {
         return $this->resource;
     }
 
-    public function getResourcePath()
+    public function getResourcePath(): ?string
     {
         return $this->resourcePath;
     }
 
-    public function getRawData()
+    public function getRawData(): array
     {
         return $this->rawData;
     }
 
-    public function isExpanded()
+    public function isExpanded(): bool
     {
         return (Boolean) $this->rawData;
     }

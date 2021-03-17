@@ -20,17 +20,17 @@ class Network
         $this->transactionFee = $transactionFee ? new Money($transactionFee['amount'], $transactionFee['currency']) : null;
     }
 
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function getHash()
+    public function getHash(): string
     {
         return $this->hash;
     }
 
-    public function getTransactionFee()
+    public function getTransactionFee(): ?Money
     {
         return $this->transactionFee;
     }

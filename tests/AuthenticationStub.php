@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class AuthenticationStub implements Authentication
 {
-    public function getRequestHeaders($method, $path, $body)
+    public function getRequestHeaders(string $method, string $path, string $body)
     {
         return ['auth' => 'auth'];
     }
