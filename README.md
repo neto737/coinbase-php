@@ -480,11 +480,11 @@ $client->commitBuy($buy);
 
 ### [Sells](https://developers.coinbase.com/api/v2#sells)
 
-**List sells**
+<!-- **List sells**
 
 ```php
 $sells = $client->getSells($account);
-```
+``` -->
 
 **Get sell info**
 
