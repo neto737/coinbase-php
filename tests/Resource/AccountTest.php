@@ -5,10 +5,8 @@ namespace Coinbase\Wallet\Tests\Resource;
 use Coinbase\Wallet\Enum\ResourceType;
 use Coinbase\Wallet\Resource\Account;
 
-class AccountTest extends \PHPUnit_Framework_TestCase
-{
-    public function testReference()
-    {
+class AccountTest extends \PHPUnit\Framework\TestCase {
+    public function testReference() {
         $account = Account::reference('ACCOUNT_ID');
 
         $this->assertEquals(ResourceType::ACCOUNT, $account->getResourceType());
@@ -16,8 +14,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ACCOUNT_ID', $account->getId());
     }
 
-    public function testSetName()
-    {
+    public function testSetName() {
         $account = new Account();
         $account->setName('NAME');
         $this->assertEquals('NAME', $account->getName());

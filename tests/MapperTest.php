@@ -19,28 +19,23 @@ use Coinbase\Wallet\Value\Money;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-class MapperTest extends \PHPUnit_Framework_TestCase
-{
+class MapperTest extends \PHPUnit\Framework\TestCase {
     /** @var Mapper */
     private $mapper;
 
-    public static function setUpBeforeClass()
-    {
+    public static function setUpBeforeClass(): void {
         date_default_timezone_set('America/New_York');
     }
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $this->mapper = new Mapper();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->mapper = null;
     }
 
-    public function testToNotification()
-    {
+    public function testToNotification() {
         $response = $this->getMockResponse(['data' => self::$notification]);
         $notification = $this->mapper->toNotification($response);
 
@@ -60,8 +55,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::$notification, $notification->getRawData());
     }
 
-    public function testToBuy()
-    {
+    public function testToBuy() {
         $response = $this->getMockResponse(['data' => self::$buy]);
         $buy = $this->mapper->toBuy($response);
 
@@ -94,8 +88,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::$buy, $buy->getRawData());
     }
 
-    public function testFromBuy()
-    {
+    public function testFromBuy() {
         $buy = new Buy();
         $buy->setAmount(new Money(1, CurrencyCode::BTC));
         $buy->setPaymentMethod(new PaymentMethod('PAYMENT_METHOD_ID'));
@@ -109,8 +102,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ], $data);
     }
 
-    public function testFromTransaction()
-    {
+    public function testFromTransaction() {
         $transaction = new Transaction(TransactionType::SEND);
         $transaction->setTo(new Email('test@example.com'));
         $transaction->setAmount(new Money(1, CurrencyCode::BTC));
@@ -127,8 +119,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ], $data);
     }
 
-    public function testFromSell()
-    {
+    public function testFromSell() {
         $sell = new Sell();
         $sell->setAmount(new Money(1, CurrencyCode::BTC));
         $sell->setPaymentMethod(new PaymentMethod('PAYMENT_METHOD_ID'));
@@ -142,8 +133,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ], $data);
     }
 
-    public function testFromDeposit()
-    {
+    public function testFromDeposit() {
         $deposit = new Deposit();
         $deposit->setAmount(new Money(10, CurrencyCode::USD));
         $deposit->setPaymentMethod(new PaymentMethod('PAYMENT_METHOD_ID'));
@@ -157,8 +147,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ], $data);
     }
 
-    public function testFromWithdrawal()
-    {
+    public function testFromWithdrawal() {
         $withdrawal = new Withdrawal();
         $withdrawal->setAmount(new Money(10, CurrencyCode::USD));
         $withdrawal->setPaymentMethod(new PaymentMethod('PAYMENT_METHOD_ID'));
@@ -172,8 +161,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ], $data);
     }
 
-    public function testResourceReference()
-    {
+    public function testResourceReference() {
         $response = $this->getMockResponse(['data' => self::$transaction]);
         $transaction = $this->mapper->toTransaction($response);
         $to = $transaction->getTo();
@@ -181,8 +169,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($to->isExpanded());
     }
 
-    public function testResourceReferenceExpanded()
-    {
+    public function testResourceReferenceExpanded() {
         $data = self::$transaction;
         $data['to'] = self::$user;
 
@@ -195,11 +182,10 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     // private
 
-    /** @return \PHPUnit_Framework_MockObject_MockObject|ResponseInterface */
-    private function getMockResponse(array $data)
-    {
-        $response = $this->getMock(ResponseInterface::class);
-        $stream = $this->getMock(StreamInterface::class);
+    /** @return \PHPUnit\Framework\MockObject\MockObject|ResponseInterface */
+    private function getMockResponse(array $data) {
+        $response = $this->createMock(ResponseInterface::class);
+        $stream = $this->createMock(StreamInterface::class);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -275,61 +261,61 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     ];
 
     private static $notification = [
-        "id"=> "6bf0ca21-0b2f-5e8a-b95e-7bd7eaccc338",
-        "type"=> "wallet:buys:completed",
-        "data"=> [
-          "id"=> "67e0eaec-07d7-54c4-a72c-2e92826897df",
-          "status"=> "completed",
-          "payment_method"=> [
-            "id"=> "83562370-3e5c-51db-87da-752af5ab9559",
-            "resource"=> "payment_method",
-            "resource_path"=> "/v2/payment-methods/83562370-3e5c-51db-87da-752af5ab9559"
-          ],
-          "transaction"=> [
-            "id"=> "441b9494-b3f0-5b98-b9b0-4d82c21c252a",
-            "resource"=> "transaction",
-            "resource_path"=> "/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/transactions/441b9494-b3f0-5b98-b9b0-4d82c21c252a"
-          ],
-          "amount"=> [
-            "amount"=> "1.00000000",
-            "currency"=> "BTC"
-          ],
-          "total"=> [
-            "amount"=> "10.25",
-            "currency"=> "USD"
-          ],
-          "subtotal"=> [
-            "amount"=> "10.10",
-            "currency"=> "USD"
-          ],
-          "created_at"=> "2015-01-31T20:49:02Z",
-          "updated_at"=> "2015-02-11T16:54:02-08:00",
-          "resource"=> "buy",
-          "resource_path"=> "/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/buys/67e0eaec-07d7-54c4-a72c-2e92826897df",
-          "committed"=> true,
-          "instant"=> false,
-          "fee"=> [
-              "type"=> "coinbase",
-              "amount"=> [
-                "amount"=> "0.00",
-                "currency"=> "USD"
-              ]
-          ],
-          "payout_at"=> "2015-02-18T16:54:00-08:00"
+        "id" => "6bf0ca21-0b2f-5e8a-b95e-7bd7eaccc338",
+        "type" => "wallet:buys:completed",
+        "data" => [
+            "id" => "67e0eaec-07d7-54c4-a72c-2e92826897df",
+            "status" => "completed",
+            "payment_method" => [
+                "id" => "83562370-3e5c-51db-87da-752af5ab9559",
+                "resource" => "payment_method",
+                "resource_path" => "/v2/payment-methods/83562370-3e5c-51db-87da-752af5ab9559"
+            ],
+            "transaction" => [
+                "id" => "441b9494-b3f0-5b98-b9b0-4d82c21c252a",
+                "resource" => "transaction",
+                "resource_path" => "/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/transactions/441b9494-b3f0-5b98-b9b0-4d82c21c252a"
+            ],
+            "amount" => [
+                "amount" => "1.00000000",
+                "currency" => "BTC"
+            ],
+            "total" => [
+                "amount" => "10.25",
+                "currency" => "USD"
+            ],
+            "subtotal" => [
+                "amount" => "10.10",
+                "currency" => "USD"
+            ],
+            "created_at" => "2015-01-31T20:49:02Z",
+            "updated_at" => "2015-02-11T16:54:02-08:00",
+            "resource" => "buy",
+            "resource_path" => "/v2/accounts/2bbf394c-193b-5b2a-9155-3b4732659ede/buys/67e0eaec-07d7-54c4-a72c-2e92826897df",
+            "committed" => true,
+            "instant" => false,
+            "fee" => [
+                "type" => "coinbase",
+                "amount" => [
+                    "amount" => "0.00",
+                    "currency" => "USD"
+                ]
+            ],
+            "payout_at" => "2015-02-18T16:54:00-08:00"
         ],
-        "user"=> [
-          "id"=> "f01c821e-bb35-555f-a4da-548672963119",
-          "resource"=> "user",
-          "resource_path"=> "/v2/users/f01c821e-bb35-555f-a4da-548672963119"
+        "user" => [
+            "id" => "f01c821e-bb35-555f-a4da-548672963119",
+            "resource" => "user",
+            "resource_path" => "/v2/users/f01c821e-bb35-555f-a4da-548672963119"
         ],
-        "account"=> [
-          "id"=> "8d5f086c-d7d5-58ee-890e-c09b3d8d4434",
-          "resource"=> "account",
-          "resource_path"=> "/v2/accounts/8d5f086c-d7d5-58ee-890e-c09b3d8d4434"
+        "account" => [
+            "id" => "8d5f086c-d7d5-58ee-890e-c09b3d8d4434",
+            "resource" => "account",
+            "resource_path" => "/v2/accounts/8d5f086c-d7d5-58ee-890e-c09b3d8d4434"
         ],
-        "delivery_attempts"=> 1,
-        "created_at"=> "2015-11-10T19:15:06Z",
-        "resource"=> "notification",
-        "resource_path"=> "/v2/notifications/6bf0ca21-0b2f-5e8a-b95e-7bd7eaccc338"
+        "delivery_attempts" => 1,
+        "created_at" => "2015-11-10T19:15:06Z",
+        "resource" => "notification",
+        "resource_path" => "/v2/notifications/6bf0ca21-0b2f-5e8a-b95e-7bd7eaccc338"
     ];
 }

@@ -6,16 +6,14 @@ use Coinbase\Wallet\ActiveRecord\ActiveRecordContext;
 use Coinbase\Wallet\Client;
 use Coinbase\Wallet\Resource\Deposit;
 
-class DepositActiveRecordTest extends \PHPUnit_Framework_TestCase
-{
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Client */
+class DepositActiveRecordTest extends \PHPUnit\Framework\TestCase {
+    /** @var \PHPUnit\Framework\MockObject\MockObject|Client */
     private $client;
 
     /** @var Deposit */
     private $deposit;
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $this->client = $this->getMockBuilder(Client::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -24,8 +22,7 @@ class DepositActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->deposit = new Deposit();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->client = null;
         $this->deposit = null;
     }
@@ -33,8 +30,7 @@ class DepositActiveRecordTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideForMethodProxy
      */
-    public function testMethodProxy($method, $clientMethod)
-    {
+    public function testMethodProxy($method, $clientMethod) {
         $this->client->expects($this->once())
             ->method($clientMethod)
             ->with($this->deposit, []);
@@ -42,8 +38,7 @@ class DepositActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->deposit->$method();
     }
 
-    public function provideForMethodProxy()
-    {
+    public function provideForMethodProxy() {
         return [
             'refresh' => ['refresh', 'refreshDeposit'],
             'commit'  => ['commit', 'commitDeposit'],

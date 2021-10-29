@@ -35,7 +35,7 @@ class Resource
         }
     }
 
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -50,7 +50,7 @@ class Resource
         return $this->resourcePath;
     }
 
-    public function getRawData(): array
+    public function getRawData(): ?array
     {
         return $this->rawData;
     }

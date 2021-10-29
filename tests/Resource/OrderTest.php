@@ -6,10 +6,8 @@ use Coinbase\Wallet\Enum\ResourceType;
 use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Value\Money;
 
-class OrderTest extends \PHPUnit_Framework_TestCase
-{
-    public function testReference()
-    {
+class OrderTest extends \PHPUnit\Framework\TestCase {
+    public function testReference() {
         $order = Order::reference('ORDER_ID');
 
         $this->assertEquals(ResourceType::ORDER, $order->getResourceType());
@@ -17,22 +15,19 @@ class OrderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ORDER_ID', $order->getId());
     }
 
-    public function testSetName()
-    {
+    public function testSetName() {
         $order = new Order();
         $order->setName('NAME');
         $this->assertEquals('NAME', $order->getName());
     }
 
-    public function testSetDescription()
-    {
+    public function testSetDescription() {
         $order = new Order();
         $order->setDescription('DESCRIPTION');
         $this->assertEquals('DESCRIPTION', $order->getDescription());
     }
 
-    public function testSetAmount()
-    {
+    public function testSetAmount() {
         $amount = $this->getMockBuilder(Money::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -42,8 +37,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($amount, $order->getAmount());
     }
 
-    public function testSetMetadata()
-    {
+    public function testSetMetadata() {
         $order = new Order();
         $order->setMetadata(['FOO' => 'BAR']);
         $this->assertEquals(['FOO' => 'BAR'], $order->getMetadata());

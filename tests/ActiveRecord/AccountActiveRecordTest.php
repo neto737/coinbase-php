@@ -12,16 +12,14 @@ use Coinbase\Wallet\Resource\Sell;
 use Coinbase\Wallet\Resource\Transaction;
 use Coinbase\Wallet\Resource\Withdrawal;
 
-class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
-{
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Client */
+class AccountActiveRecordTest extends \PHPUnit\Framework\TestCase {
+    /** @var \PHPUnit\Framework\MockObject\MockObject|Client */
     private $client;
 
     /** @var Account */
     private $account;
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $this->client = $this->getMockBuilder(Client::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -30,8 +28,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account = new Account();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->client = null;
         $this->account = null;
     }
@@ -39,8 +36,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideForMethodProxy
      */
-    public function testMethodProxy($method, $clientMethod)
-    {
+    public function testMethodProxy($method, $clientMethod) {
         $this->client->expects($this->once())
             ->method($clientMethod)
             ->with($this->account, []);
@@ -48,8 +44,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->$method();
     }
 
-    public function provideForMethodProxy()
-    {
+    public function provideForMethodProxy() {
         return [
             'refresh'         => ['refresh', 'refreshAccount'],
             'update'          => ['update', 'updateAccount'],
@@ -58,14 +53,12 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
             'getAddresses'    => ['getAddresses', 'getAccountAddresses'],
             'getTransactions' => ['getTransactions', 'getAccountTransactions'],
             'getBuys'         => ['getBuys', 'getAccountBuys'],
-            'getSells'        => ['getSells', 'getSells'],
             'getDeposits'     => ['getDeposits', 'getAccountDeposits'],
             'getWithdrawals'  => ['getWithdrawals', 'getAccountWithdrawals'],
         ];
     }
 
-    public function testGetAddress()
-    {
+    public function testGetAddress() {
         $expected = new Address();
 
         $this->client->expects($this->any())
@@ -77,8 +70,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateAddress()
-    {
+    public function testCreateAddress() {
         $address = new Address();
 
         $this->client->expects($this->once())
@@ -88,8 +80,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createAddress($address);
     }
 
-    public function testGetTransaction()
-    {
+    public function testGetTransaction() {
         $expected = new Transaction();
 
         $this->client->expects($this->any())
@@ -101,8 +92,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateTransaction()
-    {
+    public function testCreateTransaction() {
         $transaction = new Transaction();
 
         $this->client->expects($this->once())
@@ -112,8 +102,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createTransaction($transaction);
     }
 
-    public function testGetBuy()
-    {
+    public function testGetBuy() {
         $expected = new Buy();
 
         $this->client->expects($this->any())
@@ -125,8 +114,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateBuy()
-    {
+    public function testCreateBuy() {
         $buy = new Buy();
 
         $this->client->expects($this->once())
@@ -136,8 +124,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createBuy($buy);
     }
 
-    public function testCommitBuy()
-    {
+    public function testCommitBuy() {
         $buy = new Buy();
 
         $this->client->expects($this->once())
@@ -147,8 +134,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->commitBuy($buy);
     }
 
-    public function testGetSell()
-    {
+    public function testGetSell() {
         $expected = new Sell();
 
         $this->client->expects($this->any())
@@ -160,8 +146,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateSell()
-    {
+    public function testCreateSell() {
         $sell = new Sell();
 
         $this->client->expects($this->once())
@@ -171,8 +156,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createSell($sell);
     }
 
-    public function testCommitSell()
-    {
+    public function testCommitSell() {
         $sell = new Sell();
 
         $this->client->expects($this->once())
@@ -182,8 +166,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->commitSell($sell);
     }
 
-    public function testGetDeposit()
-    {
+    public function testGetDeposit() {
         $expected = new Deposit();
 
         $this->client->expects($this->any())
@@ -195,8 +178,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateDeposit()
-    {
+    public function testCreateDeposit() {
         $deposit = new Deposit();
 
         $this->client->expects($this->once())
@@ -206,8 +188,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createDeposit($deposit);
     }
 
-    public function testCommitDeposit()
-    {
+    public function testCommitDeposit() {
         $deposit = new Deposit();
 
         $this->client->expects($this->once())
@@ -217,8 +198,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->commitDeposit($deposit);
     }
 
-    public function testGetWithdrawal()
-    {
+    public function testGetWithdrawal() {
         $expected = new Withdrawal();
 
         $this->client->expects($this->any())
@@ -230,8 +210,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateWithdrawal()
-    {
+    public function testCreateWithdrawal() {
         $withdrawal = new Withdrawal();
 
         $this->client->expects($this->once())
@@ -241,8 +220,7 @@ class AccountActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->account->createWithdrawal($withdrawal);
     }
 
-    public function testCommitWithdrawal()
-    {
+    public function testCommitWithdrawal() {
         $withdrawal = new Withdrawal();
 
         $this->client->expects($this->once())

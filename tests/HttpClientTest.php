@@ -10,27 +10,23 @@ use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class HttpClientTest extends \PHPUnit_Framework_TestCase
-{
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ClientInterface */
+class HttpClientTest extends \PHPUnit\Framework\TestCase {
+    /** @var \PHPUnit\Framework\MockObject\MockObject|ClientInterface */
     private $transport;
 
     /** @var HttpClient */
     private $client;
 
-    public static function setUpBeforeClass()
-    {
+    public static function setUpBeforeClass(): void {
         date_default_timezone_set('America/New_York');
     }
 
-    protected function setUp()
-    {
-        $this->transport = $this->getMock(ClientInterface::class);
+    protected function setUp(): void {
+        $this->transport = $this->createMock(ClientInterface::class);
         $this->client = $this->createHttpClient(new AuthenticationStub());
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->transport = null;
         $this->client = null;
     }
@@ -38,8 +34,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideForGetQueryString
      */
-    public function testGetQueryString($path, $expected)
-    {
+    public function testGetQueryString($path, $expected) {
         $this->transport->expects($this->once())
             ->method('send')
             ->with($this->isRequestFor('GET', $expected));
@@ -47,8 +42,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->client->get($path, ['foo' => 'bar']);
     }
 
-    public function provideForGetQueryString()
-    {
+    public function provideForGetQueryString() {
         return [
             ['/', '/?foo=bar'],
             ['/?bar=foo', '/?bar=foo&foo=bar'],
@@ -58,8 +52,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideForUnsafeMethod
      */
-    public function testUnsafeMethod($method, $httpMethod)
-    {
+    public function testUnsafeMethod($method, $httpMethod) {
         $this->transport->expects($this->once())
             ->method('send')
             ->with($this->isRequestFor($httpMethod, '/'));
@@ -67,8 +60,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->client->$method('/', ['foo' => 'bar']);
     }
 
-    public function provideForUnsafeMethod()
-    {
+    public function provideForUnsafeMethod() {
         return [
             ['put', 'PUT'],
             ['post', 'POST'],
@@ -76,8 +68,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testOptions()
-    {
+    public function testOptions() {
         $this->transport->expects($this->once())
             ->method('send')
             ->with(
@@ -88,10 +79,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->client->post('/', ['foo' => 'bar']);
     }
 
-    public function testAuthenticationHeaders()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Authentication $auth */
-        $auth = $this->getMock(Authentication::class);
+    public function testAuthenticationHeaders() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|Authentication $auth */
+        $auth = $this->createMock(Authentication::class);
 
         $auth->expects($this->once())
             ->method('getRequestHeaders')
@@ -102,12 +92,11 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $client->post('/', ['foo' => 'bar']);
     }
 
-    public function testRefreshAuthentication()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Authentication $auth */
-        $auth = $this->getMock(Authentication::class);
-        $request = $this->getMock(RequestInterface::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testRefreshAuthentication() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|Authentication $auth */
+        $auth = $this->createMock(Authentication::class);
+        $request = $this->createMock(RequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $auth->expects($this->any())
             ->method('getRequestHeaders')
@@ -128,18 +117,16 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $client->refreshAuthentication(['foo' => 'bar']);
     }
 
-    public function testRefreshAuthenticationNoRequest()
-    {
+    public function testRefreshAuthenticationNoRequest() {
         $this->transport->expects($this->never())->method('send');
         $this->client->refreshAuthentication(['foo' => 'bar']);
     }
 
-    public function testRevokeAuthentication()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Authentication $auth */
-        $auth = $this->getMock(Authentication::class);
-        $request = $this->getMock(RequestInterface::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testRevokeAuthentication() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|Authentication $auth */
+        $auth = $this->createMock(Authentication::class);
+        $request = $this->createMock(RequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $auth->expects($this->any())
             ->method('getRequestHeaders')
@@ -160,14 +147,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $client->revokeAuthentication(['foo' => 'bar']);
     }
 
-    public function testRevokeAuthenticationNoRequest()
-    {
+    public function testRevokeAuthenticationNoRequest() {
         $this->transport->expects($this->never())->method('send');
         $this->client->revokeAuthentication(['foo' => 'bar']);
     }
 
-    public function testTwoFactorTokenGet()
-    {
+    public function testTwoFactorTokenGet() {
         $this->transport->expects($this->once())
             ->method('send')
             ->with(
@@ -181,8 +166,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function testTwoFactorTokenPost()
-    {
+    public function testTwoFactorTokenPost() {
         $this->transport->expects($this->once())
             ->method('send')
             ->with(
@@ -198,8 +182,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     // private
 
-    private function createHttpClient(Authentication $auth)
-    {
+    private function createHttpClient(Authentication $auth) {
         return new HttpClient(
             Configuration::DEFAULT_API_URL,
             Configuration::DEFAULT_API_VERSION,
@@ -208,9 +191,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    private function isValidOptionsArray(array $headers = [], $json = true)
-    {
-        return $this->callback(function($options) use($headers, $json) {
+    private function isValidOptionsArray(array $headers = [], $json = true) {
+        return $this->callback(function ($options) use ($headers, $json) {
             $this->assertArrayHasKey('headers', $options);
             $this->assertArrayHasKey('User-Agent', $options['headers']);
             $this->assertArrayHasKey('CB-VERSION', $options['headers']);
@@ -227,10 +209,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         });
     }
 
-    private function isRequestFor($method, $path)
-    {
+    private function isRequestFor($method, $path) {
         return $this->callback(
-            function($request) use($method, $path) {
+            function ($request) use ($method, $path) {
                 /** @var RequestInterface $request */
                 $this->assertInstanceOf(RequestInterface::class, $request);
                 $this->assertEquals($method, $request->getMethod());

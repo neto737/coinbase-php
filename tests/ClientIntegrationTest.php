@@ -21,14 +21,12 @@ use Coinbase\Wallet\Value\Money;
 /**
  * @group integration
  */
-class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
-{
+class ClientIntegrationTest extends \PHPUnit\Framework\TestCase {
     /** @var Client */
     private $client;
     private $accounts = [];
 
-    public static function setUpBeforeClass()
-    {
+    public static function setUpBeforeClass(): void {
         if (!isset($_SERVER['CB_API_KEY']) || !isset($_SERVER['CB_API_SECRET'])) {
             self::markTestSkipped(
                 'Environment variables CB_API_KEY and/or CB_API_SECRET are missing'
@@ -38,8 +36,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         date_default_timezone_set('America/New_York');
     }
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $configuration = Configuration::apiKey(
             $_SERVER['CB_API_KEY'],
             $_SERVER['CB_API_SECRET']
@@ -48,8 +45,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->client = Client::create($configuration);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         while ($account = array_pop($this->accounts)) {
             try {
                 $this->client->deleteAccount($account);
@@ -61,8 +57,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->client = null;
     }
 
-    public function testOAuthAuthentication()
-    {
+    public function testOAuthAuthentication() {
         if (!isset($_SERVER['CB_OAUTH_ACCESS_TOKEN'])) {
             $this->markTestSkipped('Environment variable CB_OAUTH_ACCESS_TOKEN is missing');
         }
@@ -82,8 +77,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testOAuthRefreshToken()
-    {
+    public function testOAuthRefreshToken() {
         if (!isset($_SERVER['CB_OAUTH_ACCESS_TOKEN']) || !isset($_SERVER['CB_OAUTH_REFRESH_TOKEN'])) {
             $this->markTestSkipped('Environment variables CB_OAUTH_ACCESS_TOKEN and/or CB_OAUTH_REFRESH_TOKEN are missing');
         }
@@ -102,108 +96,93 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testGetCurrencies()
-    {
+    public function testGetCurrencies() {
         $data = $this->client->getCurrencies();
 
-        $this->assertInternalType('array', $data);
+        $this->assertIsArray($data);
     }
 
-    public function testGetExchangeRates()
-    {
+    public function testGetExchangeRates() {
         $data = $this->client->getExchangeRates('CAD');
 
-        $this->assertInternalType('array', $data);
+        $this->assertIsArray($data);
         $this->assertEquals('CAD', $data['currency']);
     }
 
-    public function testGetBuyPrice1()
-    {
+    public function testGetBuyPrice1() {
         $price = $this->client->getBuyPrice();
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetBuyPrice2()
-    {
+    public function testGetBuyPrice2() {
         $price = $this->client->getBuyPrice('USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetBuyPrice3()
-    {
+    public function testGetBuyPrice3() {
         $price = $this->client->getBuyPrice('ETH-USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSellPrice1()
-    {
+    public function testGetSellPrice1() {
         $price = $this->client->getSellPrice();
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSellPrice2()
-    {
+    public function testGetSellPrice2() {
         $price = $this->client->getSellPrice('USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSellPrice3()
-    {
+    public function testGetSellPrice3() {
         $price = $this->client->getSellPrice('ETH-USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSpotPrice1()
-    {
+    public function testGetSpotPrice1() {
         $price = $this->client->getSpotPrice();
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSpotPrice2()
-    {
+    public function testGetSpotPrice2() {
         $price = $this->client->getSpotPrice('USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetSpotPrice3()
-    {
+    public function testGetSpotPrice3() {
         $price = $this->client->getSpotPrice('ETH-USD');
 
         $this->assertInstanceOf(Money::class, $price);
     }
 
-    public function testGetCurrentUser()
-    {
+    public function testGetCurrentUser() {
         $user = $this->client->getCurrentUser();
         $this->assertInstanceOf(User::class, $user);
         $this->assertNotEmpty($user->getId());
     }
 
-    public function testGetUser()
-    {
+    public function testGetUser() {
         $user = $this->client->getCurrentUser();
         $user = $this->client->getUser($user->getId());
         $this->assertInstanceOf(User::class, $user);
         $this->assertNotEmpty($user->getId());
     }
 
-    public function testUpdateCurrentUser()
-    {
+    public function testUpdateCurrentUser() {
         $user = $this->client->getCurrentUser();
         $user->setName('John Doe' === $user->getName() ? 'Jane Doe' : 'John Doe');
         $this->client->updateCurrentUser($user);
     }
 
-    public function testCreateAccountInvalid()
-    {
+    public function testCreateAccountInvalid() {
         $account = new Account();
 
         try {
@@ -215,14 +194,12 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreateAccount()
-    {
+    public function testCreateAccount() {
         $account = $this->createAccount();
         $this->assertNotEmpty($account->getId());
     }
 
-    public function testSetPrimaryAccount()
-    {
+    public function testSetPrimaryAccount() {
         $this->accounts[] = $this->client->getPrimaryAccount();
 
         $account = $this->createAccount();
@@ -230,8 +207,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($account->isPrimary());
     }
 
-    public function testUpdateAccount()
-    {
+    public function testUpdateAccount() {
         $account = $this->createAccount();
         $account->setName('foo');
         $this->client->updateAccount($account);
@@ -241,8 +217,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $account->getName());
     }
 
-    public function testLoadNextAccounts()
-    {
+    public function testLoadNextAccounts() {
         $this->createAccount();
         $this->createAccount();
 
@@ -253,22 +228,19 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $accounts);
     }
 
-    public function testDeleteAccount()
-    {
+    public function testDeleteAccount() {
         $account = $this->createAccount();
         $this->client->deleteAccount($account);
     }
 
-    public function testCreateAddress()
-    {
+    public function testCreateAddress() {
         $account = $this->createAccount();
         $address = new Address();
         $this->client->createAccountAddress($account, $address);
         $this->assertNotEmpty($address->getId());
     }
 
-    public function testLoadNextAddresses()
-    {
+    public function testLoadNextAddresses() {
         $account = $this->createAccount();
         $this->client->createAccountAddress($account, new Address());
         sleep(1);
@@ -282,8 +254,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $addresses);
     }
 
-    public function testRefreshAddress()
-    {
+    public function testRefreshAddress() {
         $account = $this->createAccount();
         $address = new Address();
         $address->setName('foo');
@@ -295,8 +266,7 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $address->getName());
     }
 
-    public function testGetAddressTransactions()
-    {
+    public function testGetAddressTransactions() {
         $account = $this->createAccount();
         $address = new Address();
         $address->setName('foo');
@@ -306,14 +276,12 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($transactions);
     }
 
-    public function testGetAccountTransactions()
-    {
+    public function testGetAccountTransactions() {
         $account      = $this->client->getPrimaryAccount();
         $transactions = $this->client->getAccountTransactions($account);
     }
 
-    public function testGetPaymentMethods()
-    {
+    public function testGetPaymentMethods() {
         $paymentMethods = $this->client->getPaymentMethods();
         $this->assertInstanceOf(ResourceCollection::class, $paymentMethods);
 
@@ -345,10 +313,9 @@ class ClientIntegrationTest extends \PHPUnit_Framework_TestCase
 
     // private
 
-    private function createAccount()
-    {
+    private function createAccount() {
         $this->accounts[] = $account = new Account();
-        $account->setName('test'.time());
+        $account->setName('test' . time());
         $this->client->createAccount($account);
 
         return $account;

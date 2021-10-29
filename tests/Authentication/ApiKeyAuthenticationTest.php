@@ -4,11 +4,9 @@ namespace Coinbase\Wallet\Tests\Authentication;
 
 use Coinbase\Wallet\Authentication\ApiKeyAuthentication;
 
-class ApiKeyAuthenticationTest extends \PHPUnit_Framework_TestCase
-{
-    public function testGetRequestHeaders()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ApiKeyAuthentication $auth */
+class ApiKeyAuthenticationTest extends \PHPUnit\Framework\TestCase {
+    public function testGetRequestHeaders() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ApiKeyAuthentication $auth */
         $auth = $this->getMockBuilder(ApiKeyAuthentication::class)
             ->setConstructorArgs(['KEY', 'SECRET'])
             ->setMethods(['getTimestamp', 'getHash'])

@@ -4,13 +4,11 @@ namespace Coinbase\Wallet\Tests\ActiveRecord;
 
 use Coinbase\Wallet\ActiveRecord\ActiveRecordContext;
 
-class ActiveRecordContextTest extends \PHPUnit_Framework_TestCase
-{
+class ActiveRecordContextTest extends \PHPUnit\Framework\TestCase {
     /**
      * @expectedException \Coinbase\Wallet\Exception\LogicException
-     */
-    public function testGetClientException()
-    {
+     */    
+    public function testGetClientException() { 
         ActiveRecordContext::setClient(null);
         ActiveRecordContext::getClient();
     }

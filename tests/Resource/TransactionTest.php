@@ -10,16 +10,13 @@ use Coinbase\Wallet\Resource\Email;
 use Coinbase\Wallet\Resource\Transaction;
 use Coinbase\Wallet\Value\Money;
 
-class TransactionTest extends \PHPUnit_Framework_TestCase
-{
-    public function testSend()
-    {
+class TransactionTest extends \PHPUnit\Framework\TestCase {
+    public function testSend() {
         $transaction = Transaction::send();
         $this->assertEquals(TransactionType::SEND, $transaction->getType());
     }
 
-    public function testSendWithAttrs()
-    {
+    public function testSendWithAttrs() {
         $to = new Email('test@example.com');
         $amount = new Money(1, CurrencyCode::BTC);
         $transaction = Transaction::send(array(
@@ -31,8 +28,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($to, $transaction->getTo());
     }
 
-    public function testSendWithAttrs2()
-    {
+    public function testSendWithAttrs2() {
         $transaction = Transaction::send([
             'toEmail' => 'test@example.com',
             'bitcoinAmount' => 1
@@ -42,20 +38,17 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new Email('test@example.com'), $transaction->getTo());
     }
 
-    public function testTransfer()
-    {
+    public function testTransfer() {
         $transaction = Transaction::transfer();
         $this->assertEquals(TransactionType::TRANSFER, $transaction->getType());
     }
 
-    public function testRequest()
-    {
+    public function testRequest() {
         $transaction = Transaction::request();
         $this->assertEquals(TransactionType::REQUEST, $transaction->getType());
     }
 
-    public function testSetAmount()
-    {
+    public function testSetAmount() {
         $expected = new Money(1, CurrencyCode::BTC);
 
         $transaction = new Transaction();
@@ -64,8 +57,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $transaction->getAmount());
     }
 
-    public function testSetBitcoinAmount()
-    {
+    public function testSetBitcoinAmount() {
         $transaction = new Transaction();
         $transaction->setBitcoinAmount(1);
 
@@ -74,15 +66,13 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(CurrencyCode::BTC, $transaction->getAmount()->getCurrency());
     }
 
-    public function testSetDescription()
-    {
+    public function testSetDescription() {
         $transaction = new Transaction();
         $transaction->setDescription('DESCRIPTION');
         $this->assertEquals('DESCRIPTION', $transaction->getDescription());
     }
 
-    public function testSetToAccountId()
-    {
+    public function testSetToAccountId() {
         $transaction = new Transaction();
         $transaction->setToAccountId('ACCOUNT_ID');
 
@@ -90,8 +80,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ACCOUNT_ID', $transaction->getTo()->getId());
     }
 
-    public function testSetToEmail()
-    {
+    public function testSetToEmail() {
         $transaction = new Transaction();
         $transaction->setToEmail('test@example.com');
 
@@ -99,8 +88,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test@example.com', $transaction->getTo()->getEmail());
     }
 
-    public function testSetToBitcoinAddress()
-    {
+    public function testSetToBitcoinAddress() {
         $transaction = new Transaction();
         $transaction->setToBitcoinAddress('ADDRESS');
 

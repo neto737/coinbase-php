@@ -6,16 +6,14 @@ use Coinbase\Wallet\ActiveRecord\ActiveRecordContext;
 use Coinbase\Wallet\Client;
 use Coinbase\Wallet\Resource\Withdrawal;
 
-class WithdrawalActiveRecordTest extends \PHPUnit_Framework_TestCase
-{
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Client */
+class WithdrawalActiveRecordTest extends \PHPUnit\Framework\TestCase {
+    /** @var \PHPUnit\Framework\MockObject\MockObject|Client */
     private $client;
 
     /** @var Withdrawal */
     private $withdrawal;
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $this->client = $this->getMockBuilder(Client::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -24,8 +22,7 @@ class WithdrawalActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->withdrawal = new Withdrawal();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->client = null;
         $this->withdrawal = null;
     }
@@ -33,8 +30,7 @@ class WithdrawalActiveRecordTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideForMethodProxy
      */
-    public function testMethodProxy($method, $clientMethod)
-    {
+    public function testMethodProxy($method, $clientMethod) {
         $this->client->expects($this->once())
             ->method($clientMethod)
             ->with($this->withdrawal, []);
@@ -42,8 +38,7 @@ class WithdrawalActiveRecordTest extends \PHPUnit_Framework_TestCase
         $this->withdrawal->$method();
     }
 
-    public function provideForMethodProxy()
-    {
+    public function provideForMethodProxy() {
         return [
             'refresh' => ['refresh', 'refreshWithdrawal'],
             'commit'  => ['commit', 'commitWithdrawal'],

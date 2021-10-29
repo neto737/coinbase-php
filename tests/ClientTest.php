@@ -18,41 +18,37 @@ use Coinbase\Wallet\Resource\User;
 use Coinbase\Wallet\Resource\Withdrawal;
 use Psr\Http\Message\ResponseInterface;
 
-class ClientTest extends \PHPUnit_Framework_TestCase
-{
-    /** @var \PHPUnit_Framework_MockObject_MockObject|HttpClient */
+class ClientTest extends \PHPUnit\Framework\TestCase {
+    /** @var \PHPUnit\Framework\MockObject\MockObject|HttpClient */
     private $http;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Mapper */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|Mapper */
     private $mapper;
 
     /** @var Client */
     private $client;
 
-    public static function setUpBeforeClass() {
+    public static function setUpBeforeClass(): void {
         date_default_timezone_set('America/New_York');
     }
 
-    protected function setUp()
-    {
+    protected function setUp(): void {
         $this->http = $this->getMockBuilder(HttpClient::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->mapper = $this->getMock(Mapper::class);
+        $this->mapper = $this->createMock(Mapper::class);
         $this->client = new Client($this->http, $this->mapper);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void {
         $this->http = null;
         $this->mapper = null;
         $this->client = null;
     }
 
-    public function testGetUser()
-    {
+    public function testGetUser() {
         $expected = new User();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -67,10 +63,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testGetCurrentUser()
-    {
+    public function testGetCurrentUser() {
         $expected = new User();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -84,10 +79,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testGetCurrentAuthorization()
-    {
+    public function testGetCurrentAuthorization() {
         $expected = ['key' => 'value'];
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -102,10 +96,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testUpdateCurrentUser()
-    {
+    public function testUpdateCurrentUser() {
         $user = new CurrentUser();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromCurrentUser')
@@ -121,9 +114,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->updateCurrentUser($user, ['foo' => 'bar']);
     }
 
-    public function testGetAccounts()
-    {
-        $response = $this->getMock(ResponseInterface::class);
+    public function testGetAccounts() {
+        $response = $this->createMock(ResponseInterface::class);
         $expected = new ResourceCollection();
 
         $this->http->expects($this->any())
@@ -139,11 +131,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextAccounts()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $accounts */
-        $accounts = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextAccounts() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $accounts */
+        $accounts = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $accounts->expects($this->any())
@@ -163,10 +154,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextAccounts($accounts, ['foo' => 'bar']);
     }
 
-    public function testGetAccount()
-    {
+    public function testGetAccount() {
         $expected = new Account();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -181,10 +171,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateAccount()
-    {
+    public function testCreateAccount() {
         $account = new Account();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromAccount')
@@ -201,10 +190,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccount($account, ['foo' => 'bar']);
     }
 
-    public function testSetPrimaryAccount()
-    {
+    public function testSetPrimaryAccount() {
         $account = Account::reference('ACCOUNT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->once())
             ->method('post')
@@ -217,10 +205,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->setPrimaryAccount($account, ['foo' => 'bar']);
     }
 
-    public function testUpdateAccount()
-    {
+    public function testUpdateAccount() {
         $account = Account::reference('ACCOUNT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromAccount')
@@ -237,8 +224,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->updateAccount($account, ['foo' => 'bar']);
     }
 
-    public function testDeleteAccount()
-    {
+    public function testDeleteAccount() {
         $account = Account::reference('ACCOUNT_ID');
 
         $this->http->expects($this->once())
@@ -248,10 +234,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->deleteAccount($account, ['foo' => 'bar']);
     }
 
-    public function testGetAddresses()
-    {
+    public function testGetAddresses() {
         $account = Account::reference('ACCOUNT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
         $expected = new ResourceCollection();
 
         $this->http->expects($this->any())
@@ -267,11 +252,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextAddresses()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $addresses */
-        $addresses = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextAddresses() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $addresses */
+        $addresses = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $addresses->expects($this->any())
@@ -291,10 +275,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextAddresses($addresses, ['foo' => 'bar']);
     }
 
-    public function testGetAddress()
-    {
+    public function testGetAddress() {
         $account = Account::reference('ACCOUNT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
         $expected = new Address();
 
         $this->http->expects($this->any())
@@ -310,11 +293,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testGetAddressTransactions()
-    {
+    public function testGetAddressTransactions() {
         $address = Address::reference('ACCOUNT_ID', 'ADDRESS_ID');
         $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -329,11 +311,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateAddress()
-    {
+    public function testCreateAddress() {
         $account = Account::reference('ACCOUNT_ID');
         $address = new Address();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromAddress')
@@ -350,10 +331,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountAddress($account, $address, ['foo' => 'bar']);
     }
 
-    public function testGetTransactions()
-    {
+    public function testGetTransactions() {
         $account = Account::reference('ACCOUNT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
         $expected = new ResourceCollection();
 
         $this->http->expects($this->any())
@@ -369,11 +349,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextTransactions()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $addresses */
-        $addresses = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextTransactions() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $addresses */
+        $addresses = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $addresses->expects($this->any())
@@ -393,11 +372,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextTransactions($addresses, ['foo' => 'bar']);
     }
 
-    public function testGetTransaction()
-    {
+    public function testGetTransaction() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new Transaction();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -412,11 +390,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateTransaction()
-    {
+    public function testCreateTransaction() {
         $account = Account::reference('ACCOUNT_ID');
         $transaction = new Transaction();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromTransaction')
@@ -433,8 +410,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountTransaction($account, $transaction, ['foo' => 'bar']);
     }
 
-    public function testCompleteRequestTransaction()
-    {
+    public function testCompleteRequestTransaction() {
         $transaction = Transaction::reference('ACCOUNT_ID', 'TRANSACTION_ID');
 
         $this->http->expects($this->once())
@@ -444,8 +420,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->completeTransaction($transaction, ['foo' => 'bar']);
     }
 
-    public function testResendRequestTransaction()
-    {
+    public function testResendRequestTransaction() {
         $transaction = Transaction::reference('ACCOUNT_ID', 'TRANSACTION_ID');
 
         $this->http->expects($this->once())
@@ -455,8 +430,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->resendTransaction($transaction, ['foo' => 'bar']);
     }
 
-    public function testCancelRequestTransaction()
-    {
+    public function testCancelRequestTransaction() {
         $transaction = Transaction::reference('ACCOUNT_ID', 'TRANSACTION_ID');
 
         $this->http->expects($this->once())
@@ -466,11 +440,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->cancelTransaction($transaction, ['foo' => 'bar']);
     }
 
-    public function testGetBuys()
-    {
+    public function testGetBuys() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -485,11 +458,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextBuys()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $buys */
-        $buys = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextBuys() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $buys */
+        $buys = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $buys->expects($this->any())
@@ -509,11 +481,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextBuys($buys, ['foo' => 'bar']);
     }
 
-    public function testGetBuy()
-    {
+    public function testGetBuy() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new Buy();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -528,11 +499,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateBuy()
-    {
+    public function testCreateBuy() {
         $account = Account::reference('ACCOUNT_ID');
         $buy = new Buy();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromBuy')
@@ -549,10 +519,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountBuy($account, $buy, ['foo' => 'bar']);
     }
 
-    public function testCommitBuy()
-    {
+    public function testCommitBuy() {
         $buy = Buy::reference('ACCOUNT_ID', 'BUY_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->once())
             ->method('post')
@@ -565,30 +534,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->commitBuy($buy, ['foo' => 'bar']);
     }
 
-    public function testGetSells()
-    {
-        $account = Account::reference('ACCOUNT_ID');
-        $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
-
-        $this->http->expects($this->any())
-            ->method('get')
-            ->with('/v2/accounts/ACCOUNT_ID/sells', ['foo' => 'bar'])
-            ->willReturn($response);
-        $this->mapper->expects($this->any())
-            ->method('toSells')
-            ->with($response)
-            ->willReturn($expected);
-
-        $actual = $this->client->getSells($account, ['foo' => 'bar']);
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testLoadNextSells()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $sells */
-        $sells = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextSells() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $sells */
+        $sells = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $sells->expects($this->any())
@@ -608,11 +557,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextSells($sells, ['foo' => 'bar']);
     }
 
-    public function testGetSell()
-    {
+    public function testGetSell() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new Sell();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -627,11 +575,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateSell()
-    {
+    public function testCreateSell() {
         $account = Account::reference('ACCOUNT_ID');
         $sell = new Sell();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromSell')
@@ -648,10 +595,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountSell($account, $sell, ['foo' => 'bar']);
     }
 
-    public function testCommitSell()
-    {
+    public function testCommitSell() {
         $sell = Sell::reference('ACCOUNT_ID', 'SELL_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->once())
             ->method('post')
@@ -664,11 +610,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->commitSell($sell, ['foo' => 'bar']);
     }
 
-    public function testGetDeposits()
-    {
+    public function testGetDeposits() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -683,11 +628,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextDeposits()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $deposits */
-        $deposits = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextDeposits() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $deposits */
+        $deposits = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $deposits->expects($this->any())
@@ -707,11 +651,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextDeposits($deposits, ['foo' => 'bar']);
     }
 
-    public function testGetDeposit()
-    {
+    public function testGetDeposit() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new Deposit();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -726,11 +669,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateDeposit()
-    {
+    public function testCreateDeposit() {
         $account = Account::reference('ACCOUNT_ID');
         $deposit = new Deposit();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromDeposit')
@@ -747,10 +689,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountDeposit($account, $deposit, ['foo' => 'bar']);
     }
 
-    public function testCommitDeposit()
-    {
+    public function testCommitDeposit() {
         $deposit = Deposit::reference('ACCOUNT_ID', 'DEPOSIT_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->once())
             ->method('post')
@@ -763,11 +704,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->commitDeposit($deposit, ['foo' => 'bar']);
     }
 
-    public function testGetWithdrawals()
-    {
+    public function testGetWithdrawals() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -782,11 +722,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextWithdrawals()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $withdrawals */
-        $withdrawals = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextWithdrawals() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $withdrawals */
+        $withdrawals = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $withdrawals->expects($this->any())
@@ -806,11 +745,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextWithdrawals($withdrawals, ['foo' => 'bar']);
     }
 
-    public function testGetWithdrawal()
-    {
+    public function testGetWithdrawal() {
         $account = Account::reference('ACCOUNT_ID');
         $expected = new Withdrawal();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -825,11 +763,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testCreateWithdrawal()
-    {
+    public function testCreateWithdrawal() {
         $account = Account::reference('ACCOUNT_ID');
         $withdrawal = new Withdrawal();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->mapper->expects($this->any())
             ->method('fromWithdrawal')
@@ -846,10 +783,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->createAccountWithdrawal($account, $withdrawal, ['foo' => 'bar']);
     }
 
-    public function testCommitWithdrawal()
-    {
+    public function testCommitWithdrawal() {
         $withdrawal = Withdrawal::reference('ACCOUNT_ID', 'WITHDRAWAL_ID');
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->once())
             ->method('post')
@@ -862,10 +798,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->commitWithdrawal($withdrawal, ['foo' => 'bar']);
     }
 
-    public function testGetPaymentMethods()
-    {
+    public function testGetPaymentMethods() {
         $expected = new ResourceCollection();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -879,11 +814,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testLoadNextPaymentMethods()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceCollection $paymentMethods */
-        $paymentMethods = $this->getMock(ResourceCollection::class);
-        $response = $this->getMock(ResponseInterface::class);
+    public function testLoadNextPaymentMethods() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResourceCollection $paymentMethods */
+        $paymentMethods = $this->createMock(ResourceCollection::class);
+        $response = $this->createMock(ResponseInterface::class);
         $nextPage = new ResourceCollection();
 
         $paymentMethods->expects($this->any())
@@ -903,10 +837,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->client->loadNextPaymentMethods($paymentMethods, ['foo' => 'bar']);
     }
 
-    public function testGetPaymentMethod()
-    {
+    public function testGetPaymentMethod() {
         $expected = new PaymentMethod();
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())
             ->method('get')
@@ -921,23 +854,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual);
     }
 
-    public function testParseNotification()
-    {
+    public function testParseNotification() {
         $body = '{"id":"e5852770-ca8b-51be-b839-0b3aedc62252","type":"wallet:orders:paid","data":{"id":"146ed8ac-64c1-541e-8692-f9fa3d3d64d5","code":"3RTHN8KO","type":"order","name":"asdfasdf","description":"asdfasdfasdfasdf","amount":{"amount":"1.00","currency":"USD"},"receipt_url":"https://www.coinbase.com/orders/9c704d8a66a2204624ae7c39709db5f8/receipt","resource":"order","resource_path":"/v2/orders/146ed8ac-64c1-541e-8692-f9fa3d3d64d5","status":"paid","bitcoin_amount":{"amount":"0.00221000","currency":"BTC"},"payout_amount":null,"bitcoin_address":"1CHtgEP9YeDkkUQrdkmpGXdAe2LzP1esSg","refund_address":"1fnRUd2e9xk7KYv5uD4tdnnRnpvSZrbBb","bitcoin_uri":"bitcoin:1CHtgEP9YeDkkUQrdkmpGXdAe2LzP1esSg?amount=0.00221\\u0026r=https://www.coinbase.com/r/5690c45f57e9cd1211000079","notifications_url":null,"paid_at":"2016-01-09T08:27:36Z","mispaid_at":null,"expires_at":"2016-01-09T08:42:11Z","metadata":{},"created_at":"2016-01-09T08:27:11Z","updated_at":"2016-01-09T08:27:36Z","customer_info":null,"transaction":{"id":"4fbfcd5f-0252-57ac-be80-6b2037bda1c5","resource":"transaction","resource_path":"/v2/accounts/0d4b7e7f-5da8-506d-b0e1-8f5945d9d7f3/transactions/4fbfcd5f-0252-57ac-be80-6b2037bda1c5"},"mispayments":[],"refunds":[]},"user":{"id":"7eee8527-3439-52d9-98d6-a04c0d0dc6ce","resource":"user","resource_path":"/v2/users/7eee8527-3439-52d9-98d6-a04c0d0dc6ce"},"account":{"id":"0d4b7e7f-5da8-506d-b0e1-8f5945d9d7f3","resource":"account","resource_path":"/v2/accounts/0d4b7e7f-5da8-506d-b0e1-8f5945d9d7f3"},"delivery_attempts":0,"created_at":"2016-01-09T08:27:36Z","resource":"notification","resource_path":"/v2/notifications/e5852770-ca8b-51be-b839-0b3aedc62252"}';
         $this->mapper->expects($this->any())
             ->method('injectNotification')
             ->with($this->any());
     }
 
-    public function testVerifyCallback()
-    {
+    public function testVerifyCallback() {
         $body = '{"order":{"id":null,"created_at":null,"status":"completed","event":null,"total_btc":{"cents":100000000,"currency_iso":"BTC"},"total_native":{"cents":1000,"currency_iso":"USD"},"total_payout":{"cents":1000,"currency_iso":"USD"},"custom":"123456789","receive_address":"mzVoQenSY6RTBgBUcpSBTBAvUMNgGWxgJn","button":{"type":"buy_now","name":"Test Item","description":null,"id":null},"transaction":{"id":"53bdfe4d091c0d74a7000003","hash":"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b","confirmations":0}}}';
         $signature = '6yQRl17CNj5YSHSpF+tLjb0vVsNVEv021Tyy1bTVEQ69SWlmhwmJYuMc7jiDyeW9TLy4vRqSh4g4YEyN8eoQIM57pMoNw6Lw6Oudubqwp+E3cKtLFxW0l18db3Z/vhxn5BScAutHWwT/XrmkCNaHyCsvOOGMekwrNO7mxX9QIx21FBaEejJeviSYrF8bG6MbmFEs2VGKSybf9YrElR8BxxNe/uNfCXN3P5tO8MgR5wlL3Kr4yq8e6i4WWJgD08IVTnrSnoZR6v8JkPA+fn7I0M6cy0Xzw3BRMJAvdQB97wkobu97gFqJFKsOH2u/JR1S/UNP26vL0mzuAVuKAUwlRn0SUhWEAgcM3X0UCtWLYfCIb5QqrSHwlp7lwOkVnFt329Mrpjy+jAfYYSRqzIsw4ZsRRVauy/v3CvmjPI9sUKiJ5l1FSgkpK2lkjhFgKB3WaYZWy9ZfIAI9bDyG8vSTT7IDurlUhyTweDqVNlYUsO6jaUa4KmSpg1o9eIeHxm0XBQ2c0Lv/T39KNc/VOAi1LBfPiQYMXD1e/8VuPPBTDGgzOMD3i334ppSr36+8YtApAn3D36Hr9jqAfFrugM7uPecjCGuleWsHFyNnJErT0/amIt24Nh1GoiESEq42o7Co4wZieKZ+/yeAlIUErJzK41ACVGmTnGoDUwEBXxADOdA=';
         $this->assertTrue($this->client->verifyCallback($body, $signature));
     }
 
-    public function testVerifyCallbackFailure()
-    {
+    public function testVerifyCallbackFailure() {
         $body = '{"order":{"id":null,"created_at":null,"status":"completed","event":null,"total_btc":{"cents":1000000000,"currency_iso":"BTC"},"total_native":{"cents":1000,"currency_iso":"USD"},"total_payout":{"cents":1000,"currency_iso":"USD"},"custom":"123456789","receive_address":"mzVoQenSY6RTBgBUcpSBTBAvUMNgGWxgJn","button":{"type":"buy_now","name":"Test Item","description":null,"id":null},"transaction":{"id":"53bdfe4d091c0d74a7000003","hash":"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b","confirmations":0}}}';
         $signature = '6yQRl17CNj5YSHSpF+tLjb0vVsNVEv021Tyy1bTVEQ69SWlmhwmJYuMc7jiDyeW9TLy4vRqSh4g4YEyN8eoQIM57pMoNw6Lw6Oudubqwp+E3cKtLFxW0l18db3Z/vhxn5BScAutHWwT/XrmkCNaHyCsvOOGMekwrNO7mxX9QIx21FBaEejJeviSYrF8bG6MbmFEs2VGKSybf9YrElR8BxxNe/uNfCXN3P5tO8MgR5wlL3Kr4yq8e6i4WWJgD08IVTnrSnoZR6v8JkPA+fn7I0M6cy0Xzw3BRMJAvdQB97wkobu97gFqJFKsOH2u/JR1S/UNP26vL0mzuAVuKAUwlRn0SUhWEAgcM3X0UCtWLYfCIb5QqrSHwlp7lwOkVnFt329Mrpjy+jAfYYSRqzIsw4ZsRRVauy/v3CvmjPI9sUKiJ5l1FSgkpK2lkjhFgKB3WaYZWy9ZfIAI9bDyG8vSTT7IDurlUhyTweDqVNlYUsO6jaUa4KmSpg1o9eIeHxm0XBQ2c0Lv/T39KNc/VOAi1LBfPiQYMXD1e/8VuPPBTDGgzOMD3i334ppSr36+8YtApAn3D36Hr9jqAfFrugM7uPecjCGuleWsHFyNnJErT0/amIt24Nh1GoiESEq42o7Co4wZieKZ+/yeAlIUErJzK41ACVGmTnGoDUwEBXxADOdA=';
         $this->assertFalse($this->client->verifyCallback($body, $signature));

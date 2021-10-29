@@ -8,10 +8,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-class OAuthAuthenticationTest extends \PHPUnit_Framework_TestCase
-{
-    public function testGetRequestHeaders()
-    {
+class OAuthAuthenticationTest extends \PHPUnit\Framework\TestCase {
+    public function testGetRequestHeaders() {
         $expected = [
             'Authorization' => 'Bearer ACCESS_TOKEN',
         ];
@@ -21,8 +19,7 @@ class OAuthAuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testCreateRefreshRequest()
-    {
+    public function testCreateRefreshRequest() {
         $expected = [
             'grant_type' => 'refresh_token',
             'refresh_token' => 'REFRESH_TOKEN',
@@ -39,19 +36,17 @@ class OAuthAuthenticationTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \Coinbase\Wallet\Exception\LogicException
      */
-    public function testCreateRefreshRequestNoToken()
-    {
+    public function testCreateRefreshRequestNoToken() {
         $auth = new OAuthAuthentication('ACCESS_TOKEN');
         $auth->createRefreshRequest(Configuration::DEFAULT_API_URL);
     }
 
-    public function testHandleRefreshResponse()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|RequestInterface $response */
-        $request = $this->getMock(RequestInterface::class);
-        /** @var \PHPUnit_Framework_MockObject_MockObject|ResponseInterface $response */
-        $response = $this->getMock(ResponseInterface::class);
-        $stream = $this->getMock(StreamInterface::class);
+    public function testHandleRefreshResponse() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|RequestInterface $response */
+        $request = $this->createMock(RequestInterface::class);
+        /** @var \PHPUnit\Framework\MockObject\MockObject|ResponseInterface $response */
+        $response = $this->createMock(ResponseInterface::class);
+        $stream = $this->createMock(StreamInterface::class);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -66,8 +61,7 @@ class OAuthAuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('NEW_REFRESH', $auth->getRefreshToken());
     }
 
-    public function testCreateRevokeRequest()
-    {
+    public function testCreateRevokeRequest() {
         $expected = [
             'token' => 'ACCESS_TOKEN',
         ];

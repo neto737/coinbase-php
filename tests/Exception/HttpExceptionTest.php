@@ -9,17 +9,15 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-class HttpExceptionTest extends \PHPUnit_Framework_TestCase
-{
-    public function testWrapApiErrors()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|RequestException $exception */
+class HttpExceptionTest extends \PHPUnit\Framework\TestCase {
+    public function testWrapApiErrors() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|RequestException $exception */
         $exception = $this->getMockBuilder(RequestException::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $request = $this->getMock(RequestInterface::class);
-        $response = $this->getMock(ResponseInterface::class);
-        $stream = $this->getMock(StreamInterface::class);
+        $request = $this->createMock(RequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $stream = $this->createMock(StreamInterface::class);
 
         $exception->expects($this->any())
             ->method('getRequest')
@@ -44,15 +42,14 @@ class HttpExceptionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('MESSAGE1', $actual->getError()->getMessage());
     }
 
-    public function testWrapOAuthError()
-    {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|RequestException $exception */
+    public function testWrapOAuthError() {
+        /** @var \PHPUnit\Framework\MockObject\MockObject|RequestException $exception */
         $exception = $this->getMockBuilder(RequestException::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $request = $this->getMock(RequestInterface::class);
-        $response = $this->getMock(ResponseInterface::class);
-        $stream = $this->getMock(StreamInterface::class);
+        $request = $this->createMock(RequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $stream = $this->createMock(StreamInterface::class);
 
         $exception->expects($this->any())
             ->method('getRequest')
