@@ -1,6 +1,6 @@
 # Coinbase Wallet PHP Library
 
-[![Build Status](https://travis-ci.com/neto737/coinbase-php.svg)](https://travis-ci.com/neto737/coinbase-php)
+[![Build Status](https://api.travis-ci.com/neto737/coinbase-php.svg?branch=main)](https://travis-ci.com/github/neto737/coinbase-php)
 [![Latest Stable Version](https://poser.pugx.org/neto737/coinbase/v/stable)](https://packagist.org/packages/neto737/coinbase)
 [![Total Downloads](https://poser.pugx.org/neto737/coinbase/downloads)](https://packagist.org/packages/neto737/coinbase)
 [![Latest Unstable Version](https://poser.pugx.org/neto737/coinbase/v/unstable)](https://packagist.org/packages/neto737/coinbase)
