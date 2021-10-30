@@ -64,7 +64,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testGetCurrentUser() {
-        $expected = new User();
+        $expected = new CurrentUser();
         $response = $this->createMock(ResponseInterface::class);
 
         $this->http->expects($this->any())

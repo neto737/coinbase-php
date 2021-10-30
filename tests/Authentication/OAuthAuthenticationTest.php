@@ -4,6 +4,7 @@ namespace Coinbase\Wallet\Tests\Authentication;
 
 use Coinbase\Wallet\Authentication\OAuthAuthentication;
 use Coinbase\Wallet\Configuration;
+use Coinbase\Wallet\Exception\LogicException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -33,10 +34,9 @@ class OAuthAuthenticationTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals($expected, json_decode($request->getBody(), true));
     }
 
-    /**
-     * @expectedException \Coinbase\Wallet\Exception\LogicException
-     */
     public function testCreateRefreshRequestNoToken() {
+        $this->expectException(LogicException::class);
+
         $auth = new OAuthAuthentication('ACCESS_TOKEN');
         $auth->createRefreshRequest(Configuration::DEFAULT_API_URL);
     }
