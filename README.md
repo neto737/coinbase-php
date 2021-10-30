@@ -1,10 +1,10 @@
 # Coinbase Wallet PHP Library
 
-[![Build Status](https://travis-ci.org/coinbase/coinbase-php.svg)](https://travis-ci.org/coinbase/coinbase-php)
-[![Latest Stable Version](https://poser.pugx.org/coinbase/coinbase/v/stable)](https://packagist.org/packages/coinbase/coinbase)
-[![Total Downloads](https://poser.pugx.org/coinbase/coinbase/downloads)](https://packagist.org/packages/coinbase/coinbase)
-[![Latest Unstable Version](https://poser.pugx.org/coinbase/coinbase/v/unstable)](https://packagist.org/packages/coinbase/coinbase)
-[![License](https://poser.pugx.org/coinbase/coinbase/license)](https://packagist.org/packages/coinbase/coinbase)
+[![Build Status](https://travis-ci.com/neto737/coinbase-php.svg)](https://travis-ci.com/neto737/coinbase-php)
+[![Latest Stable Version](https://poser.pugx.org/neto737/coinbase/v/stable)](https://packagist.org/packages/neto737/coinbase)
+[![Total Downloads](https://poser.pugx.org/neto737/coinbase/downloads)](https://packagist.org/packages/neto737/coinbase)
+[![Latest Unstable Version](https://poser.pugx.org/neto737/coinbase/v/unstable)](https://packagist.org/packages/neto737/coinbase)
+[![License](https://poser.pugx.org/neto737/coinbase/license)](https://packagist.org/packages/neto737/coinbase)
 
 This is the official client library for the [Coinbase Wallet API v2][1]. We
 provide an intuitive, stable interface to integrate Coinbase Wallet into your
@@ -20,7 +20,7 @@ Install the library using Composer. Please read the [Composer Documentation](htt
 
 ```json
 "require": {
-    "coinbase/coinbase": "~2.0"
+    "neto737/coinbase": "~2.0"
 }
 ```
 
