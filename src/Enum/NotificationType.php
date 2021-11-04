@@ -26,7 +26,5 @@ class NotificationType {
     const WITHDRAWAL_COMPLETED = 'wallet:withdrawal:completed';
     const WITHDRAWAL_CANCELED = 'wallet:withdrawal:canceled';
 
-    const MERCHANT_PAYOUT_CREATED = 'wallet:merchant-payouts:created';
-
     const WALLET = 'wallet';
 }

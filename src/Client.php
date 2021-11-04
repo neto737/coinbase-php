@@ -11,7 +11,6 @@ use Coinbase\Wallet\Resource\Address;
 use Coinbase\Wallet\Resource\Buy;
 use Coinbase\Wallet\Resource\CurrentUser;
 use Coinbase\Wallet\Resource\Deposit;
-use Coinbase\Wallet\Resource\Merchant;
 use Coinbase\Wallet\Resource\PaymentMethod;
 use Coinbase\Wallet\Resource\Resource as BaseResource;
 use Coinbase\Wallet\Resource\ResourceCollection as BaseResourceCollection;
@@ -712,23 +711,6 @@ class Client
     public function refreshPaymentMethod(PaymentMethod $paymentMethod, array $params = [])
     {
         $this->getAndMap($paymentMethod->getResourcePath(), $params, 'toPaymentMethod', $paymentMethod);
-    }
-
-    // merchant api
-
-    /**
-     * @param $merchantId
-     * @param array $params
-     * @return Merchant
-     */
-    public function getMerchant($merchantId, array $params = []): Merchant
-    {
-        return $this->getAndMap('/v2/merchants/'.$merchantId, $params, 'toMerchant');
-    }
-
-    public function refreshMerchant(Merchant $merchant, array $params = [])
-    {
-        $this->getAndMap($merchant->getResourcePath(), $params, 'toMerchant', $merchant);
     }
 
     /**

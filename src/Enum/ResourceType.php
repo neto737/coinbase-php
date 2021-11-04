@@ -12,7 +12,6 @@ class ResourceType {
     const BUY = 'buy';
     const DEPOSIT = 'deposit';
     const EMAIL = 'email';
-    const MERCHANT = 'merchant';
     const PAYMENT_METHOD = 'payment_method';
     const SELL = 'sell';
     const TRANSACTION = 'transaction';

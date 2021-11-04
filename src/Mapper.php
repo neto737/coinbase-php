@@ -23,7 +23,6 @@ use Coinbase\Wallet\Resource\EthereumNetwork;
 use Coinbase\Wallet\Resource\EthrereumAddress;
 use Coinbase\Wallet\Resource\LitecoinAddress;
 use Coinbase\Wallet\Resource\LitecoinNetwork;
-use Coinbase\Wallet\Resource\Merchant;
 use Coinbase\Wallet\Resource\Notification;
 use Coinbase\Wallet\Resource\PaymentMethod;
 use Coinbase\Wallet\Resource\Resource as BaseResource;
@@ -456,18 +455,6 @@ class Mapper
         return $this->injectPaymentMethod($this->decode($response)['data'], $paymentMethod);
     }
 
-    // merchants
-
-    /**
-     * @param ResponseInterface $response
-     * @param Merchant|null $merchant
-     * @return Merchant
-     */
-    public function toMerchant(ResponseInterface $response, Merchant $merchant = null): Merchant
-    {
-        return $this->injectMerchant($this->decode($response)['data'], $merchant);
-    }
-
     // notifications
 
     /**
@@ -590,11 +577,6 @@ class Mapper
     private function injectPaymentMethod(array $data, PaymentMethod $paymentMethod = null): BaseResource
     {
         return $this->injectResource($data, $paymentMethod ?: new PaymentMethod());
-    }
-
-    private function injectMerchant(array $data, Merchant $merchant = null): BaseResource
-    {
-        return $this->injectResource($data, $merchant ?: new Merchant());
     }
 
     public function injectNotification(array $data, Notification $notification = null): BaseResource
@@ -868,8 +850,6 @@ class Mapper
                 return $expanded ? $this->injectDeposit($data) : new Deposit($data['resource_path']);
             case ResourceType::EMAIL:
                 return new Email($data['email']);
-            case ResourceType::MERCHANT:
-                return $expanded ? $this->injectMerchant($data) : new Merchant($data['resource_path']);
             case ResourceType::PAYMENT_METHOD:
                 return $expanded ? $this->injectPaymentMethod($data) : new PaymentMethod($data['resource_path']);
             case ResourceType::SELL:
