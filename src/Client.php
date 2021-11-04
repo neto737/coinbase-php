@@ -9,11 +9,9 @@ use Coinbase\Wallet\Enum\Param;
 use Coinbase\Wallet\Resource\Account;
 use Coinbase\Wallet\Resource\Address;
 use Coinbase\Wallet\Resource\Buy;
-use Coinbase\Wallet\Resource\Checkout;
 use Coinbase\Wallet\Resource\CurrentUser;
 use Coinbase\Wallet\Resource\Deposit;
 use Coinbase\Wallet\Resource\Merchant;
-use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Resource\PaymentMethod;
 use Coinbase\Wallet\Resource\Resource as BaseResource;
 use Coinbase\Wallet\Resource\ResourceCollection as BaseResourceCollection;
@@ -734,45 +732,6 @@ class Client
     }
 
     /**
-     * Lists checkouts for the current user.
-     *
-     * Supports pagination parameters.
-     *
-     * @param array $params
-     * @return BaseResourceCollection|Checkout[]
-     */
-    public function getCheckouts(array $params = [])
-    {
-        return $this->getAndMapCollection('/v2/checkouts', $params, 'toCheckouts');
-    }
-
-    public function loadNextCheckouts(BaseResourceCollection $checkouts, array $params = [])
-    {
-        $this->loadNext($checkouts, $params, 'toCheckouts');
-    }
-
-    /**
-     * @param $checkoutId
-     * @param array $params
-     * @return Checkout
-     */
-    public function getCheckout($checkoutId, array $params = []): Checkout
-    {
-        return $this->getAndMap('/v2/checkouts/'.$checkoutId, $params, 'toCheckout');
-    }
-
-    public function refreshCheckout(Checkout $checkout, array $params = [])
-    {
-        $this->getAndMap($checkout->getResourcePath(), $params, 'toCheckout', $checkout);
-    }
-
-    public function createCheckout(Checkout $checkout, array $params = [])
-    {
-        $data = $this->mapper->fromCheckout($checkout);
-        $this->postAndMap('/v2/checkouts', $data + $params, 'toCheckout', $checkout);
-    }
-
-    /**
      * Lists notifications where the current user was the subscriber.
      *
      * Supports pagination parameters.
@@ -815,44 +774,6 @@ class Client
     {
         $data = json_decode($webhook_body, true);
         return $this->mapper->injectNotification($data);
-    }
-
-    /**
-     * Verifies the authenticity of a merchant callback from Coinbase
-     *
-     * @param $body
-     * @param $signature
-     * @return Boolean
-     */
-    public function verifyCallback($body, $signature): bool
-    {
-        $signature_buffer = base64_decode( $signature );
-        return (1 == openssl_verify($body, $signature_buffer, self::getCallbackPublicKey(), OPENSSL_ALGO_SHA256));
-    }
-
-    /**
-     * Return the PEM encoded public RSA key for merchant callbacks
-     *
-     * @return String
-     */
-    public static function getCallbackPublicKey(): string
-    {
-        return <<<EOD
------BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA9MsJBuXzFGIh/xkAA9Cy
-QdZKRerV+apyOAWY7sEYV/AJg+AX/tW2SHeZj+3OilNYm5DlBi6ZzDboczmENrFn
-mUXQsecsR5qjdDWb2qYqBkDkoZP02m9o9UmKObR8coKW4ZBw0hEf3fP9OEofG2s7
-Z6PReWFyQffnnecwXJoN22qjjsUtNNKOOo7/l+IyGMVmdzJbMWQS4ybaU9r9Ax0J
-4QUJSS/S4j4LP+3Z9i2DzIe4+PGa4Nf7fQWLwE45UUp5SmplxBfvEGwYNEsHvmRj
-usIy2ZunSO2CjJ/xGGn9+/57W7/SNVzk/DlDWLaN27hUFLEINlWXeYLBPjw5GGWp
-ieXGVcTaFSLBWX3JbOJ2o2L4MxinXjTtpiKjem9197QXSVZ/zF1DI8tRipsgZWT2
-/UQMqsJoVRXHveY9q9VrCLe97FKAUiohLsskr0USrMCUYvLU9mMw15hwtzZlKY8T
-dMH2Ugqv/CPBuYf1Bc7FAsKJwdC504e8kAUgomi4tKuUo25LPZJMTvMTs/9IsRJv
-I7ibYmVR3xNsVEpupdFcTJYGzOQBo8orHKPFn1jj31DIIKociCwu6m8ICDgLuMHj
-7bUHIlTzPPT7hRPyBQ1KdyvwxbguqpNhqp1hG2sghgMr0M6KMkUEz38JFElsVrpF
-4z+EqsFcIZzjkSG16BjjjTkCAwEAAQ==
------END PUBLIC KEY-----
-EOD;
     }
 
     // private

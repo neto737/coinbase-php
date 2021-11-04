@@ -10,11 +10,9 @@ class ResourceType {
     const ADDRESS = 'address';
     const APPLICATION = 'application';
     const BUY = 'buy';
-    const CHECKOUT = 'checkout';
     const DEPOSIT = 'deposit';
     const EMAIL = 'email';
     const MERCHANT = 'merchant';
-    const ORDER = 'order';
     const PAYMENT_METHOD = 'payment_method';
     const SELL = 'sell';
     const TRANSACTION = 'transaction';

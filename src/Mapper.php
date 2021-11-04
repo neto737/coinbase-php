@@ -14,7 +14,6 @@ use Coinbase\Wallet\Resource\BitcoinCashAddress;
 use Coinbase\Wallet\Resource\BitcoinCashNetwork;
 use Coinbase\Wallet\Resource\BitcoinNetwork;
 use Coinbase\Wallet\Resource\Buy;
-use Coinbase\Wallet\Resource\Checkout;
 use Coinbase\Wallet\Resource\CurrentUser;
 use Coinbase\Wallet\Resource\Deposit;
 use Coinbase\Wallet\Resource\Email;
@@ -26,7 +25,6 @@ use Coinbase\Wallet\Resource\LitecoinAddress;
 use Coinbase\Wallet\Resource\LitecoinNetwork;
 use Coinbase\Wallet\Resource\Merchant;
 use Coinbase\Wallet\Resource\Notification;
-use Coinbase\Wallet\Resource\Order;
 use Coinbase\Wallet\Resource\PaymentMethod;
 use Coinbase\Wallet\Resource\Resource as BaseResource;
 use Coinbase\Wallet\Resource\ResourceCollection as BaseResourceCollection;
@@ -470,106 +468,6 @@ class Mapper
         return $this->injectMerchant($this->decode($response)['data'], $merchant);
     }
 
-    // orders
-
-    /**
-     * @param ResponseInterface $response
-     * @return BaseResourceCollection
-     */
-    public function toOrders(ResponseInterface $response): BaseResourceCollection
-    {
-        return $this->toCollection($response, 'injectOrder');
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @param Order|null $order
-     * @return Order
-     */
-    public function toOrder(ResponseInterface $response, Order $order = null): Order
-    {
-        return $this->injectOrder($this->decode($response)['data'], $order);
-    }
-
-    /**
-     * @param Order $order
-     * @return array
-     */
-    public function fromOrder(Order $order): array
-    {
-        // filter
-        $data = array_intersect_key(
-            $this->extractData($order),
-            array_flip(['amount', 'name', 'description', 'notifications_url', 'metadata'])
-        );
-
-        // currency
-        if (isset($data['amount']['currency'])) {
-            $data['currency'] = $data['amount']['currency'];
-        }
-
-        // amount
-        if (isset($data['amount']['amount'])) {
-            $data['amount'] = $data['amount']['amount'];
-        }
-
-        return $data;
-    }
-
-    // checkouts
-
-    /**
-     * @param ResponseInterface $response
-     * @return BaseResourceCollection
-     */
-    public function toCheckouts(ResponseInterface $response): BaseResourceCollection
-    {
-        return $this->toCollection($response, 'injectCheckout');
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @param Checkout|null $checkout
-     * @return Checkout
-     */
-    public function toCheckout(ResponseInterface $response, Checkout $checkout = null): Checkout
-    {
-        return $this->injectCheckout($this->decode($response)['data'], $checkout);
-    }
-
-    /**
-     * @param Checkout $checkout
-     * @return array
-     */
-    public function fromCheckout(Checkout $checkout): array
-    {
-        $keys = [
-            'amount', 'name', 'description', 'type', 'style',
-            'customer_defined_amount', 'amount_presets', 'notifications_url', 'success_url',
-            'cancel_url', 'auto_redirect', 'collect_shipping_address',
-            'collect_email', 'collect_phone_number', 'collect_country',
-            'metadata',
-        ];
-
-        // filter
-        $data = array_intersect_key(
-            $this->extractData($checkout),
-            array_flip($keys)
-        );
-
-        // currency
-        if (isset($data['amount']['currency'])) {
-            $data['currency'] = $data['amount']['currency'];
-        }
-
-        // amount
-        if (isset($data['amount']['amount'])) {
-            $data['amount'] = $data['amount']['amount'];
-        }
-
-        return $data;
-    }
-
     // notifications
 
     /**
@@ -697,16 +595,6 @@ class Mapper
     private function injectMerchant(array $data, Merchant $merchant = null): BaseResource
     {
         return $this->injectResource($data, $merchant ?: new Merchant());
-    }
-
-    private function injectOrder(array $data, Order $order = null): BaseResource
-    {
-        return $this->injectResource($data, $order ?: new Order());
-    }
-
-    private function injectCheckout(array $data, Checkout $checkout = null): BaseResource
-    {
-        return $this->injectResource($data, $checkout ?: new Checkout());
     }
 
     public function injectNotification(array $data, Notification $notification = null): BaseResource
@@ -976,16 +864,12 @@ class Mapper
                 return $expanded ? $this->injectApplication($data) : new Application($data['resource_path']);
             case ResourceType::BUY:
                 return $expanded ? $this->injectBuy($data) : new Buy($data['resource_path']);
-            case ResourceType::CHECKOUT:
-                return $expanded ? $this->injectCheckout($data) : new Checkout($data['resource_path']);
             case ResourceType::DEPOSIT:
                 return $expanded ? $this->injectDeposit($data) : new Deposit($data['resource_path']);
             case ResourceType::EMAIL:
                 return new Email($data['email']);
             case ResourceType::MERCHANT:
                 return $expanded ? $this->injectMerchant($data) : new Merchant($data['resource_path']);
-            case ResourceType::ORDER:
-                return $expanded ? $this->injectOrder($data) : new Order($data['resource_path']);
             case ResourceType::PAYMENT_METHOD:
                 return $expanded ? $this->injectPaymentMethod($data) : new PaymentMethod($data['resource_path']);
             case ResourceType::SELL:
