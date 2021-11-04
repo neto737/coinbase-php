@@ -5,8 +5,7 @@ namespace Coinbase\Wallet\Enum;
 /**
  * Supported resource types.
  */
-class ResourceType
-{
+class ResourceType {
     const ACCOUNT = 'account';
     const ADDRESS = 'address';
     const APPLICATION = 'application';
@@ -38,8 +37,4 @@ class ResourceType
     const RIPPLE_NETWORK = 'xrp_network';
     const ZRX_ADDRESS = '0x_address';
     const ZRX_NETWORK = '0x_network';
-
-    private function __construct()
-    {
-    }
 }

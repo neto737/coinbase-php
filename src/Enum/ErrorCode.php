@@ -5,8 +5,7 @@ namespace Coinbase\Wallet\Enum;
 /**
  * Supported error codes.
  */
-class ErrorCode
-{
+class ErrorCode {
     const AUTHENTICATION_ERROR = 'authentication_error';
     const EXPIRED_TOKEN = 'expired_token';
     const INTERNAL_SERVER_ERROR = 'internal_server_error';
@@ -21,8 +20,4 @@ class ErrorCode
     const TWO_FACTOR_REQUIRED = 'two_factor_required';
     const UNVERIFIED_EMAIL = 'unverified_email';
     const VALIDATION_ERROR = 'validation_error';
-
-    private function __construct()
-    {
-    }
 }

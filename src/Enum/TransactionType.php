@@ -5,8 +5,7 @@ namespace Coinbase\Wallet\Enum;
 /**
  * Supported transaction types.
  */
-class TransactionType
-{
+class TransactionType {
     const BUY = 'buy';
     const EXCHANGE_DEPOSIT = 'exchange_deposit';
     const EXCHANGE_WITHDRAWAL = 'exchange_withdrawal';
@@ -16,8 +15,4 @@ class TransactionType
     const SEND = 'send';
     const TRANSFER = 'transfer';
     const VAULT_WITHDRAWAL = 'vault_withdrawal';
-
-    private function __construct()
-    {
-    }
 }

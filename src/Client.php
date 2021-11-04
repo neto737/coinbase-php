@@ -734,63 +734,6 @@ class Client
     }
 
     /**
-     * Lists orders for the current user.
-     *
-     * Supports pagination parameters.
-     *
-     * @param array $params
-     * @return BaseResourceCollection|Order[]
-     */
-    public function getOrders(array $params = [])
-    {
-        return $this->getAndMapCollection('/v2/orders', $params, 'toOrders');
-    }
-
-    public function loadNextOrders(BaseResourceCollection $orders, array $params = [])
-    {
-        $this->loadNext($orders, $params, 'toOrders');
-    }
-
-    /**
-     * @param $orderId
-     * @param array $params
-     * @return Order
-     */
-    public function getOrder($orderId, array $params = []): Order
-    {
-        return $this->getAndMap('/v2/orders/'.$orderId, $params, 'toOrder');
-    }
-
-    public function refreshOrder(Order $order, array $params = [])
-    {
-        $this->getAndMap($order->getResourcePath(), $params, 'toOrder', $order);
-    }
-
-    public function createOrder(Order $order, array $params = [])
-    {
-        $data = $this->mapper->fromOrder($order);
-        $this->postAndMap('/v2/orders', $data + $params, 'toOrder', $order);
-    }
-
-    /**
-     * Refunds an order.
-     *
-     * Supported parameters include:
-     *
-     *  * mispayment (string)
-     *  * refund_address (string)
-     * @param Order $order
-     * @param $currency
-     * @param array $params
-     */
-    public function refundOrder(Order $order, $currency, array $params = [])
-    {
-        $params['currency'] = $currency;
-
-        $this->postAndMap($order->getResourcePath().'/refund', $params, 'toOrder', $order);
-    }
-
-    /**
      * Lists checkouts for the current user.
      *
      * Supports pagination parameters.
@@ -910,35 +853,6 @@ I7ibYmVR3xNsVEpupdFcTJYGzOQBo8orHKPFn1jj31DIIKociCwu6m8ICDgLuMHj
 4z+EqsFcIZzjkSG16BjjjTkCAwEAAQ==
 -----END PUBLIC KEY-----
 EOD;
-    }
-
-    /**
-     * Lists orders for a checkout.
-     *
-     * Supports pagination parameters.
-     *
-     * @param Checkout $checkout
-     * @param array $params
-     * @return BaseResourceCollection|Order[]
-     */
-    public function getCheckoutOrders(Checkout $checkout, array $params = [])
-    {
-        return $this->getAndMapCollection($checkout->getResourcePath().'/orders', $params, 'toOrders');
-    }
-
-    public function loadNextCheckoutOrders(BaseResourceCollection $orders, array $params = [])
-    {
-        $this->loadNextOrders($orders, $params);
-    }
-
-    /**
-     * @param Checkout $checkout
-     * @param array $params
-     * @return Order
-     */
-    public function createNewCheckoutOrder(Checkout $checkout, array $params = []): Order
-    {
-        return $this->postAndMap($checkout->getResourcePath().'/orders', $params, 'toOrder');
     }
 
     // private

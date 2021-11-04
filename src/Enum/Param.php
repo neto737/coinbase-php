@@ -5,8 +5,7 @@ namespace Coinbase\Wallet\Enum;
 /**
  * Supported parameter keys.
  */
-class Param
-{
+class Param {
     const AGREE_BTC_AMOUNT_VARIES = 'agree_btc_amount_varies';
     const COMMIT = 'commit';
     const ENDING_BEFORE = 'ending_before';
@@ -22,8 +21,4 @@ class Param
     const SKIP_NOTIFICATIONS = 'skip_notifications';
     const STARTING_AFTER = 'starting_after';
     const TWO_FACTOR_TOKEN = 'two_factor_token';
-
-    private function __construct()
-    {
-    }
 }

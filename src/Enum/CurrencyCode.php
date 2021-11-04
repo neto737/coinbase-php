@@ -180,10 +180,6 @@ class CurrencyCode
 
     private static $pairSeparator = '-';
 
-    private function __construct()
-    {
-    }
-
     /**
      * @param CurrencyCode|string|null $fromCode
      * @param CurrencyCode|string|null $toCode
