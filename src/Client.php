@@ -36,7 +36,7 @@ use Coinbase\Wallet\Resource\Notification;
  */
 class Client
 {
-    const VERSION = '2.8.0';
+    const VERSION = '2.9.0';
 
     private $http;
     private $mapper;
