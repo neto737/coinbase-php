@@ -6,13 +6,12 @@
 [![Latest Unstable Version](https://poser.pugx.org/neto737/coinbase/v/unstable)](https://packagist.org/packages/neto737/coinbase)
 [![License](https://poser.pugx.org/neto737/coinbase/license)](https://packagist.org/packages/neto737/coinbase)
 
-This is the official client library for the [Coinbase Wallet API v2][1]. We
+This is a fork of the [official client library][2] for the [Coinbase Wallet API v2][1]. We
 provide an intuitive, stable interface to integrate Coinbase Wallet into your
 PHP project.
 
 _Important:_ As this library is targeted for newer API v2, it requires v2
-permissions (i.e. `wallet:accounts:read`). If you're still using v1, please use
-the [older version][2] of this library.
+permissions (i.e. `wallet:accounts:read`).
 
 ## Installation
 
@@ -607,101 +606,6 @@ $paymentMethods = $client->getPaymentMethods();
 $paymentMethod = $client->getPaymentMethod($paymentMethodId);
 ```
 
-### [Merchants](https://developers.coinbase.com/api/v2#merchants)
-
-#### Get merchant
-
-```php
-$merchant = $client->getMerchant($merchantId);
-```
-
-### [Orders](https://developers.coinbase.com/api/v2#orders)
-
-#### List orders
-
-```php
-$orders = $client->getOrders();
-```
-
-#### Get order
-
-```php
-$order = $client->getOrder($orderId);
-```
-
-#### Create order
-
-```php
-use Coinbase\Wallet\Resource\Order;
-use Coinbase\Wallet\Value\Money;
-
-$order = new Order([
-    'name' => 'Order #1234',
-    'amount' => Money::btc(1)
-]);
-
-$client->createOrder($order);
-```
-
-#### Refund order
-
-```php
-use Coinbase\Wallet\Enum\CurrencyCode;
-
-$client->refundOrder($order, CurrencyCode::BTC);
-```
-
-### Checkouts
-
-#### List checkouts
-
-```php
-$checkouts = $client->getCheckouts();
-```
-
-#### Create checkout
-
-```php
-use Coinbase\Wallet\Resource\Checkout;
-
-$params = array(
-    'name'               => 'My Order',
-    'amount'             => new Money(100, 'USD'),
-    'metadata'           => array( 'order_id' => $custom_order_id )
-);
-
-$checkout = new Checkout($params);
-$client->createCheckout($checkout);
-$code = $checkout->getEmbedCode();
-$redirect_url = "https://www.coinbase.com/checkouts/$code";
-```
-
-#### Get checkout
-
-```php
-$checkout = $client->getCheckout($checkoutId);
-```
-
-#### Get checkout's orders
-
-```php
-$orders = $client->getCheckoutOrders($checkout);
-```
-
-#### Create order for checkout
-
-```php
-$order = $client->createNewCheckoutOrder($checkout);
-```
-
-### [Notifications webhook and verification](https://developers.coinbase.com/docs/wallet/notifications)
-
-```php
-$raw_body = file_get_contents('php://input');
-$signature = $_SERVER['HTTP_CB_SIGNATURE'];
-$authenticity = $client->verifyCallback($raw_body, $signature); // boolean
-```
-
 ## Contributing and testing
 
 The test suite is built using PHPUnit. Run the suite of unit tests by running
@@ -722,7 +626,7 @@ phpunit --group integration
 ```
 
 [1]: https://developers.coinbase.com/api/v2
-[2]: https://packagist.org/packages/coinbase/coinbase
+[2]: https://github.com/coinbase/coinbase-php
 [3]: https://developers.coinbase.com/docs/wallet/coinbase-connect#two-factor-authentication
 [4]: https://developers.coinbase.com/api/v2#pagination
 [5]: https://packagist.org/search/?q=oauth2%20client
